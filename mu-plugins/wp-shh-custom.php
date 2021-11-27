@@ -82,6 +82,7 @@ function create_shortcode_hotels_filter_navigation()
     $lageArr = array();
     $regionArr = array();
     $HotelClassArr = array();
+    $allFilterData = array();
     
     $args = array(
                   'post_type'      => 'hotel',
@@ -90,77 +91,62 @@ function create_shortcode_hotels_filter_navigation()
 
     $query = new WP_Query($args);
 
-    if ($query->have_posts()) :
-    $result .= '<div class="container">';
-    $result .= '<div class="row">';
+    if ($query->have_posts()) : ?>
+<div class="container">
+    <div class="row">
+        <?php
     while ($query->have_posts()) :
-        $query->the_post() ; ?> 
-        <form id="hotelfiltersForm" class="form-inline"> 
-    <?php
+        $query->the_post() ; ?>
+
+        <form id="hotelfiltersForm" class="form-inline">
+            <?php
     // collect filter values of all current items with no duplicates
+
     // Lage
     foreach (get_field('lage') as $sub) {
         $lageArr[$sub['value']] = $sub['label'];
     }
-    // Region
+    $allFilterData['lage'] = $lageArr;
+
+    // plz_ort
     $regionArr[urlencode(get_field('plz_ort'))] = get_field('plz_ort');
+    $allFilterData['plz_ort'] = $regionArr;
 
     // Hoteltyp
     foreach (get_field('hoteltyp') as $sub) {
         $hotelTypArr[$sub['value']] = $sub['label'];
     }
+    $allFilterData['hoteltyp'] = $hotelTypArr;
 
     // Hotel Klassifikation
     $HotelClassArr[get_field('hotelklassifikation')] = get_field('hotelklassifikation');
-    
-    endwhile; ?> 
-
-
-
-
-<div class="form-group mb-2 col-md-12" id="region"> <?php
-        foreach ($regionArr as $key => $value) {
-            ?> 
-            <label class="form-check-label" for="<?php echo $key ?>">
-                <?php echo $value ?>
-            </label>
-                <input class="form-check-input hotel-list_filter" type="checkbox" value="<?php echo $key ?>" id="<?php echo $key ?>" name="hotels-filter-checkbox"> 
-                <?php
-        } ?> </div> 
-
-    <div class="form-group mb-2 col-md-12" id="lage"> <?php
-        foreach ($lageArr as $key => $value) {
-            ?> 
-            <label class="form-check-label" for="<?php echo $key ?>">
-                <?php echo $value ?>
-            </label>
-                <input class="form-check-input hotel-list_filter" type="checkbox" value="<?php echo $key ?>" id="<?php echo $key ?>" name="hotels-filter-checkbox"> 
-                <?php
-        } ?> </div> 
+    $allFilterData['hotelklassifikation'] = $HotelClassArr;
+    endwhile;
         
-        <div class="form-group mb-2 col-md-12" id="hoteltyp"> <?php
-        foreach ($hotelTypArr as $key => $value) {
-            ?> 
-            <label class="form-check-label" for="<?php echo $key ?>">
-                <?php echo $value ?>
-            </label>
-                <input class="form-check-input hotel-list_filter" type="checkbox" value="<?php echo $key ?>" id="<?php echo $key ?>" name="hotels-filter-checkbox"> 
-                <?php
-        } ?> </div>
+    //echo '<pre>' . var_export($allFilterData, true) . '</pre>';?>
 
+            <?php foreach ($allFilterData as $fieldName => $fieldRows): ?>
 
-<div class="form-group mb-2 col-md-12" id="hotelklassifikation"> Sterne:<?php
-        foreach ($HotelClassArr as $key => $value) {
-            ?> 
-            <label class="form-check-label" for="<?php echo $key ?>">
-                <?php echo $value ?>
-            </label>
-                <input class="form-check-input hotel-list_filter" type="checkbox" value="<?php echo $key ?>" id="<?php echo $key ?>" name="hotels-filter-checkbox"> 
-                <?php
-        } ?> </div>
+            <div class="form-group mb-2 col-md-12"
+                id="<?php echo $fieldName; ?>">
+                <?php foreach ($fieldRows as $key => $value): ?>
+                <label class="form-check-label"
+                    for="<?php echo $key ?>">
+                    <?php echo $value ?>
+                </label>
+                <input class="form-check-input hotel-list_filter" type="checkbox"
+                    value="<?php echo $key ?>"
+                    id="<?php echo $key ?>"
+                    name="hotels-filter-checkbox">
+                <?php endforeach; ?>
+            </div>
 
-<button type="submit" class="btn btn-primary">Hotels anzeigen</button></form> 
-</div></div>
+            <?php endforeach; ?>
+
+            <button type="submit" class="btn btn-primary">Hotels anzeigen</button>
+        </form>
+    </div>
+</div>
 <?php
 
     wp_reset_postdata();
@@ -169,45 +155,18 @@ function create_shortcode_hotels_filter_navigation()
 }
 add_shortcode('hotels-filters', 'create_shortcode_hotels_filter_navigation');
 
+// shortcode hotels-filters ends here
 
 
-
-
-function multiAttr($filterKey, $filterValue, $acfFieldValue)
+function filter_nav()
 {
-    $multiParam = explode(',', $filterValue);
-    $hasMatched = 0;
-    foreach ($multiParam as &$value) {
-        if (filterCheckMethod($filterKey, $value, $acfFieldValue)) {
-            $hasMatched = 1;
-            break;
-        }
-    }
-    return $hasMatched;
+    //$filterData = $_POST['filterParams'];
+    echo 'huhu';
+    exit;
 }
 
-function filterCheckMethod($urlGetKey, $urlGetValue, $acfFieldValue)
-{
-    if ($urlGetKey == 'hoteltyp' || $urlGetKey == 'lage') {
-        $result = is_numeric(array_search($urlGetValue, array_column($acfFieldValue, 'value')));
-    }
-    if ($urlGetKey == 'region' || $urlGetKey == 'hotelklassifikation') {
-        $result = strcmp(strtolower($acfFieldValue), strtolower($urlGetValue)) == 0;
-    }
-    return $result;
-}
-
-function setFilter($filterCheck, &$visibility)
-{
-    if ($filterCheck) {
-        array_push($visibility, 1);
-    } else {
-        array_push($visibility, 0);
-    }
-}
-
-// shortcode cossde ends here
-
+add_action('wp_ajax_filter_nav', 'filter_nav');
+add_action('wp_ajax_nopriv_filter_nav', 'filter_nav');
 
 
 function filter_hotels()
@@ -220,21 +179,17 @@ function filter_hotels()
     'publish_status' => 'published'
  );
 
-    $ajaxposts = new WP_Query($args);
-
-
-    $result = '';
-
-    $result .= '<div class="container">';
-    $result .= '<div class="row">';
+    $ajaxposts = new WP_Query($args); ?>
+<div class="container">
+    <div class="row">
+        <?php
     if ($ajaxposts->have_posts()) {
         while ($ajaxposts->have_posts()) : $ajaxposts->the_post();
 
-    
         $visibility = array();
 
         foreach ($filterData as $key => $value) {
-            if ($key == 'region') {
+            if ($key == 'plz_ort') {
                 $acfFieldValueEnc = urlencode(get_field('plz_ort'));
                 if (strpos($value, ',') == true) {
                     // allow multiple get parameters separated by comma
@@ -296,24 +251,65 @@ function filter_hotels()
             }
         }
 
-        if (!in_array(0, $visibility)) {
-            $result .= '<div class="hotel-item col-md-4">';
-            $result .= '<div class="hotel-item__location">' . get_field('plz_ort') . '</div>';
-            $result .= '<div class="hotel-item__teaser-image">' . get_the_post_thumbnail() . '</div>';
-            $result .= '<div class="hotel-item__title">' . get_the_title() . '</div>';
-            $result .= '<div class="hotel-item__teaser-text">' . get_field('teaser_text') . '</div>';
-            $result .= '<a class="hotel-item__detail-link" href="' . get_post_permalink()  .'">Das Haus entdecken</a>';
-            $result .= '</div>';
-        }
+        if (!in_array(0, $visibility)): ?>
+        <div class="hotel-item col-md-4">
+            <div class="hotel-item__location"><?php echo get_field('plz_ort'); ?>
+            </div>
+            <div class="hotel-item__teaser-image"><?php echo get_the_post_thumbnail(); ?>
+            </div>
+            <div class="hotel-item__title"><?php echo get_the_title(); ?>
+            </div>
+            <div class="hotel-item__teaser-text"><?php echo get_field('teaser_text'); ?>
+            </div>
+            <a class="hotel-item__detail-link"
+                href="<?php echo get_post_permalink(); ?>">Das Haus
+                entdecken</a>
+        </div>
+        <?php endif;
   
-        endwhile;
-        $result .= '</div></div>';
+        endwhile; ?>
+    </div>
+</div>
+<?php
     } else {
-        $result = 'empty';
+        ?> <span>empty</span>
+<?php
     }
 
-    echo $result;
+
     exit;
 }
 add_action('wp_ajax_filter_hotels', 'filter_hotels');
 add_action('wp_ajax_nopriv_filter_hotels', 'filter_hotels');
+
+
+function multiAttr($filterKey, $filterValue, $acfFieldValue)
+{
+    $multiParam = explode(',', $filterValue);
+    $hasMatched = 0;
+    foreach ($multiParam as &$value) {
+        if (filterCheckMethod($filterKey, $value, $acfFieldValue)) {
+            $hasMatched = 1;
+            break;
+        }
+    }
+    return $hasMatched;
+}
+function filterCheckMethod($urlGetKey, $urlGetValue, $acfFieldValue)
+{
+    if ($urlGetKey == 'hoteltyp' || $urlGetKey == 'lage') {
+        $result = is_numeric(array_search($urlGetValue, array_column($acfFieldValue, 'value')));
+    }
+    if ($urlGetKey == 'plz_ort' || $urlGetKey == 'hotelklassifikation') {
+        $result = strcmp(strtolower($acfFieldValue), strtolower($urlGetValue)) == 0;
+    }
+    return $result;
+}
+function setFilter($filterCheck, &$visibility)
+{
+    if ($filterCheck) {
+        array_push($visibility, 1);
+    } else {
+        array_push($visibility, 0);
+    }
+}

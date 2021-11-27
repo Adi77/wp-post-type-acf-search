@@ -8,16 +8,13 @@ $(document).ready(function () {
   let urlUpd = '';
   let filterParams = getUrlParams();
 
+  loadFilterNav(filterParams);
   loadHotelList(filterParams);
 
-  $('.hotel-list_filter').on('click', function () {
-    let filterParams = [];
-    $('input[name="hotels-filter-checkbox"]:checked').each(function (index) {
-      filterParams[$(this).parent().attr('id') + '_' + index] = this.checked
-        ? $(this).val()
-        : '';
-    });
-  });
+  /*   $('.hotel-list_filter').on('click', function () {
+    loadFilterNav(filterParams);
+    console.log('huhu');
+  }); */
 
   $('#hotelfiltersForm').submit(function (event) {
     let filterType = [];
@@ -44,6 +41,7 @@ $(document).ready(function () {
       }
     });
 
+    loadFilterNav(filterParams);
     loadHotelList(filterParams);
 
     urlUpd = '/hotels-uebersicht/?' + $.param(filterParams);
@@ -53,17 +51,25 @@ $(document).ready(function () {
   });
 });
 
+function loadFilterNav(filterParams) {
+  ajaxRequest('filter_nav', filterParams, '.hotel-filter-nav');
+}
+
 function loadHotelList(filterParams) {
+  ajaxRequest('filter_hotels', filterParams, '.hotel-item-tiles');
+}
+
+function ajaxRequest(action, filterParams, divElement) {
   $.ajax({
     type: 'POST',
     url: '/wp-admin/admin-ajax.php',
     dataType: 'html',
     data: {
-      action: 'filter_hotels',
+      action: action,
       filterParams: filterParams,
     },
     success: function (res) {
-      $('.hotel-item-tiles').html(res);
+      $(divElement).html(res);
     },
   });
 }
