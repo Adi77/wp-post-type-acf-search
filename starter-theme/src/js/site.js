@@ -8,11 +8,20 @@ $(document).ready(function () {
   let urlUpd = '';
   let filterParams = getUrlParams();
 
-  loadFilterNav(filterParams);
   loadHotelList(filterParams);
 
+  $.each(filterParams, function (key, value) {
+    console.log(value);
+    let filterTypeOptions = value.split(',');
+    $.each(filterTypeOptions, function (optionsKey, optionsValue) {
+      $('#' + key + '')
+        .find($('#' + encodeURIComponent(optionsValue) + ''))
+        .attr('checked', true);
+    });
+  });
+
   /*   $('.hotel-list_filter').on('click', function () {
-    loadFilterNav(filterParams);
+
     console.log('huhu');
   }); */
 
@@ -20,6 +29,7 @@ $(document).ready(function () {
     let filterType = [];
     let filterParams = {};
     let filterParamsValuesString = '';
+
     $(this)
       .children('div')
       .each(function (index) {
@@ -41,7 +51,6 @@ $(document).ready(function () {
       }
     });
 
-    loadFilterNav(filterParams);
     loadHotelList(filterParams);
 
     urlUpd = '/hotels-uebersicht/?' + $.param(filterParams);
@@ -50,10 +59,6 @@ $(document).ready(function () {
     event.preventDefault();
   });
 });
-
-function loadFilterNav(filterParams) {
-  ajaxRequest('filter_nav', filterParams, '.hotel-filter-nav');
-}
 
 function loadHotelList(filterParams) {
   ajaxRequest('filter_hotels', filterParams, '.hotel-item-tiles');

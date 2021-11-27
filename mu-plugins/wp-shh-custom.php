@@ -72,8 +72,6 @@ add_action('init', 'hotels_post_type', 0);
 
 
 
-
-
 // Create Shortcode Hotels Filter Navigation
 
 function create_shortcode_hotels_filter_navigation()
@@ -83,6 +81,8 @@ function create_shortcode_hotels_filter_navigation()
     $regionArr = array();
     $HotelClassArr = array();
     $allFilterData = array();
+
+
     
     $args = array(
                   'post_type'      => 'hotel',
@@ -123,9 +123,9 @@ function create_shortcode_hotels_filter_navigation()
     $allFilterData['hotelklassifikation'] = $HotelClassArr;
     endwhile;
         
-    //echo '<pre>' . var_export($allFilterData, true) . '</pre>';?>
+    //echo '<pre>' . var_export($allFilterData, true) . '</pre>';
 
-            <?php foreach ($allFilterData as $fieldName => $fieldRows): ?>
+    foreach ($allFilterData as $fieldName => $fieldRows): ?>
 
             <div class="form-group mb-2 col-md-12"
                 id="<?php echo $fieldName; ?>">
@@ -143,6 +143,7 @@ function create_shortcode_hotels_filter_navigation()
 
             <?php endforeach; ?>
 
+
             <button type="submit" class="btn btn-primary">Hotels anzeigen</button>
         </form>
     </div>
@@ -158,15 +159,8 @@ add_shortcode('hotels-filters', 'create_shortcode_hotels_filter_navigation');
 // shortcode hotels-filters ends here
 
 
-function filter_nav()
-{
-    //$filterData = $_POST['filterParams'];
-    echo 'huhu';
-    exit;
-}
 
-add_action('wp_ajax_filter_nav', 'filter_nav');
-add_action('wp_ajax_nopriv_filter_nav', 'filter_nav');
+
 
 
 function filter_hotels()
