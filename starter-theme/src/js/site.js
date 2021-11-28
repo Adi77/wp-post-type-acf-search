@@ -11,11 +11,10 @@ $(document).ready(function () {
   loadHotelList(filterParams);
 
   $.each(filterParams, function (key, value) {
-    console.log(value);
     let filterTypeOptions = value.split(',');
     $.each(filterTypeOptions, function (optionsKey, optionsValue) {
       $('#' + key + '')
-        .find($('#' + encodeURIComponent(optionsValue) + ''))
+        .find($('#' + optionsValue.replace(/%/g, '') + ''))
         .attr('checked', true);
     });
   });
@@ -53,7 +52,13 @@ $(document).ready(function () {
 
     loadHotelList(filterParams);
 
-    urlUpd = '/hotels-uebersicht/?' + $.param(filterParams);
+    let filterParamsString = Object.keys(filterParams)
+      .map(function (key) {
+        return key + '=' + filterParams[key];
+      })
+      .join('&');
+
+    urlUpd = '/hotels-uebersicht/?' + filterParamsString;
     window.history.pushState(null, '', urlUpd);
 
     event.preventDefault();
@@ -80,11 +85,14 @@ function ajaxRequest(action, filterParams, divElement) {
 }
 
 function getUrlParams() {
-  var url = document.location.href;
-  var qs = url.substring(url.indexOf('?') + 1).split('&');
+  let url = document.location.href;
+  let qs = url.substring(url.indexOf('?') + 1).split('&');
+  if (url == qs) {
+    qs = 0;
+  }
   for (var i = 0, result = {}; i < qs.length; i++) {
     qs[i] = qs[i].split('=');
-    result[qs[i][0]] = decodeURIComponent(qs[i][1]);
+    result[qs[i][0]] = qs[i][1];
   }
   return result;
 }

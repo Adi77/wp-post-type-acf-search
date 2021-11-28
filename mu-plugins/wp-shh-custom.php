@@ -109,7 +109,7 @@ function create_shortcode_hotels_filter_navigation()
     $allFilterData['lage'] = $lageArr;
 
     // plz_ort
-    $regionArr[urlencode(get_field('plz_ort'))] = get_field('plz_ort');
+    $regionArr[rawurlencode(get_field('plz_ort'))] = get_field('plz_ort');
     $allFilterData['plz_ort'] = $regionArr;
 
     // Hoteltyp
@@ -135,9 +135,9 @@ function create_shortcode_hotels_filter_navigation()
                     <?php echo $value ?>
                 </label>
                 <input class="form-check-input hotel-list_filter" type="checkbox"
-                    value="<?php echo $key ?>"
-                    id="<?php echo $key ?>"
-                    name="hotels-filter-checkbox">
+                    value="<?php echo $key ?>" <?php $typeSaveKey = str_replace("%", "", $key); ?>
+                id="<?php echo $typeSaveKey ?>"
+                name="hotels-filter-checkbox">
                 <?php endforeach; ?>
             </div>
 
@@ -184,7 +184,7 @@ function filter_hotels()
 
         foreach ($filterData as $key => $value) {
             if ($key == 'plz_ort') {
-                $acfFieldValueEnc = urlencode(get_field('plz_ort'));
+                $acfFieldValueEnc = rawurlencode(get_field('plz_ort'));
                 if (strpos($value, ',') == true) {
                     // allow multiple get parameters separated by comma
                     $multiAttrRes = multiAttr($key, $value, $acfFieldValueEnc);
@@ -199,7 +199,7 @@ function filter_hotels()
                 }
             }
             if ($key == 'hotelklassifikation') {
-                $acfFieldValueEnc = urlencode(get_field('hotelklassifikation'));
+                $acfFieldValueEnc = get_field('hotelklassifikation');
                 if (strpos($value, ',') == true) {
                     // allow multiple get parameters separated by comma
                     $multiAttrRes = multiAttr($key, $value, $acfFieldValueEnc);
