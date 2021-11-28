@@ -144,7 +144,9 @@ function create_shortcode_hotels_filter_navigation()
             <?php endforeach; ?>
 
 
-            <button type="submit" class="btn btn-primary">Hotels anzeigen</button>
+            <button type="submit" class="btn btn-primary">Hotels anzeigen</button> &nbsp;&nbsp;
+            <a class="reset-filter" href="#">Filter
+                zurücksetzen</a>
         </form>
     </div>
 </div>

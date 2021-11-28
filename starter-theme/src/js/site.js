@@ -24,6 +24,17 @@ $(document).ready(function () {
     console.log('huhu');
   }); */
 
+  $('.reset-filter').on('click', function (event) {
+    loadHotelList();
+    window.history.pushState(null, '', '?');
+
+    $('input[name="hotels-filter-checkbox"]').each(function () {
+      this.checked = false;
+    });
+
+    event.preventDefault();
+  });
+
   $('#hotelfiltersForm').submit(function (event) {
     let filterType = [];
     let filterParams = {};
