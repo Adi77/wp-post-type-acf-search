@@ -167,12 +167,25 @@ add_shortcode('hotels-filters', 'create_shortcode_hotels_filter_navigation');
 
 function filter_hotels()
 {
-    $filterData = $_POST['filterParams'];
+    if (isset($_POST["filterParams"])) {
+        $filterData = $_POST['filterParams'];
+    } else {
+        $filterData = array();
+    }
+
+
+    $count = get_option('posts_per_page', 1);
+    $paged = get_query_var('paged') ? get_query_var('paged') : 1;
+    $offset = ($paged - 1) * $count;
+
+
 
     $args = array(
     'post_type'      => 'hotel',
-    'posts_per_page' => '10',
-    'publish_status' => 'published'
+    'publish_status' => 'published',
+    'posts_per_page' => $count,
+     'paged' => $paged,
+     'offset' => $offset,
  );
 
     $ajaxposts = new WP_Query($args); ?>
@@ -263,7 +276,10 @@ function filter_hotels()
         </div>
         <?php endif;
   
-        endwhile; ?>
+        endwhile;
+        
+        previous_posts_link('Zurück', $ajaxposts->max_num_pages);
+        next_posts_link('Weiter', $ajaxposts->max_num_pages); ?>
     </div>
 </div>
 <?php
@@ -309,3 +325,6 @@ function setFilter($filterCheck, &$visibility)
         array_push($visibility, 0);
     }
 }
+
+
+//<print_r($wpdb->queries);
