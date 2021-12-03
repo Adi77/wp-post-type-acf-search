@@ -167,100 +167,61 @@ add_shortcode('hotels-filters', 'create_shortcode_hotels_filter_navigation');
 
 function filter_hotels()
 {
+    $filterData = array();
+    $options = array();
+
     if (isset($_POST["filterParams"])) {
         $filterData = $_POST['filterParams'];
-    } else {
-        $filterData = array();
     }
+
+    foreach ($filterData as $key => $value) {
+        $filterTypeKeys[] = $key;
+        $options[$key] = explode(",", $value);
+    }
+
+    $meta_query = array(
+        'relation' => 'And',
+    );
+
+    $i = 0;
+    $ii = 0;
+    
+    foreach ($options as $key => $value) {
+        $meta_query[]['relation'] = 'OR';
+        $ii = 0;
+        foreach ($value as $key2 => $value2) {
+            if ($ii < count($value)) {
+                $meta_query[$i][] = array( 'key'=> $key, 'value' => rawurldecode($value2), 'compare' => 'LIKE'  );
+            }
+            $ii++;
+        }
+        $i++;
+    }
+
+    //echo '<pre>' . print_r($meta_query, 1) . '</pre>';
 
 
     $count = get_option('posts_per_page', 1);
     $paged = get_query_var('paged') ? get_query_var('paged') : 1;
     $offset = ($paged - 1) * $count;
-
-
-
     $args = array(
     'post_type'      => 'hotel',
     'publish_status' => 'published',
     'posts_per_page' => $count,
-     'paged' => $paged,
-     'offset' => $offset,
+    'paged' => $paged,
+    'offset' => $offset,
+    'meta_query'	=> $meta_query
  );
+
+ 
+   
 
     $ajaxposts = new WP_Query($args); ?>
 <div class="container">
     <div class="row">
         <?php
     if ($ajaxposts->have_posts()) {
-        while ($ajaxposts->have_posts()) : $ajaxposts->the_post();
-
-        $visibility = array();
-
-        foreach ($filterData as $key => $value) {
-            if ($key == 'plz_ort') {
-                $acfFieldValueEnc = rawurlencode(get_field('plz_ort'));
-                if (strpos($value, ',') == true) {
-                    // allow multiple get parameters separated by comma
-                    $multiAttrRes = multiAttr($key, $value, $acfFieldValueEnc);
-                    setFilter($multiAttrRes, $visibility);
-                } else {
-                    if (filterCheckMethod($key, strtolower($value), $acfFieldValueEnc)) {
-                        $filterCheck = 1;
-                    } else {
-                        $filterCheck = 0;
-                    }
-                    setFilter($filterCheck, $visibility);
-                }
-            }
-            if ($key == 'hotelklassifikation') {
-                $acfFieldValueEnc = get_field('hotelklassifikation');
-                if (strpos($value, ',') == true) {
-                    // allow multiple get parameters separated by comma
-                    $multiAttrRes = multiAttr($key, $value, $acfFieldValueEnc);
-                    setFilter($multiAttrRes, $visibility);
-                } else {
-                    if (filterCheckMethod($key, strtolower($value), $acfFieldValueEnc)) {
-                        $filterCheck = 1;
-                    } else {
-                        $filterCheck = 0;
-                    }
-                    setFilter($filterCheck, $visibility);
-                }
-            }
-            if ($key == 'lage') {
-                $acfFieldValueEnc = get_field('lage');
-                if (strpos($value, ',') == true) {
-                    // allow multiple get parameters separated by comma
-                    $multiAttrRes = multiAttr($key, $value, $acfFieldValueEnc);
-                    setFilter($multiAttrRes, $visibility);
-                } else {
-                    if (filterCheckMethod($key, strtolower($value), $acfFieldValueEnc)) {
-                        $filterCheck = 1;
-                    } else {
-                        $filterCheck = 0;
-                    }
-                    setFilter($filterCheck, $visibility);
-                }
-            }
-            if ($key == 'hoteltyp') {
-                $acfFieldValueEnc = get_field('hoteltyp');
-                if (strpos($value, ',') == true) {
-                    // allow multiple get parameters separated by comma
-                    $multiAttrRes = multiAttr($key, $value, $acfFieldValueEnc);
-                    setFilter($multiAttrRes, $visibility);
-                } else {
-                    if (filterCheckMethod($key, strtolower($value), $acfFieldValueEnc)) {
-                        $filterCheck = 1;
-                    } else {
-                        $filterCheck = 0;
-                    }
-                    setFilter($filterCheck, $visibility);
-                }
-            }
-        }
-
-        if (!in_array(0, $visibility)): ?>
+        while ($ajaxposts->have_posts()) : $ajaxposts->the_post(); ?>
         <div class="hotel-item col-md-4">
             <div class="hotel-item__location"><?php echo get_field('plz_ort'); ?>
             </div>
@@ -274,9 +235,20 @@ function filter_hotels()
                 href="<?php echo get_post_permalink(); ?>">Das Haus
                 entdecken</a>
         </div>
-        <?php endif;
-  
+
+        <?php
         endwhile;
+
+       
+
+        //echo '<pre>' . print_r($args, 1) . '</pre>';
+
+        /*  global $wpdb;
+         echo '<pre>';
+         print_r($wpdb->queries);
+         echo '</pre>'; */
+        
+
         
         previous_posts_link('Zurück', $ajaxposts->max_num_pages);
         next_posts_link('Weiter', $ajaxposts->max_num_pages); ?>
@@ -287,44 +259,8 @@ function filter_hotels()
         ?> <span>empty</span>
 <?php
     }
-
-
     exit;
 }
+
 add_action('wp_ajax_filter_hotels', 'filter_hotels');
 add_action('wp_ajax_nopriv_filter_hotels', 'filter_hotels');
-
-
-function multiAttr($filterKey, $filterValue, $acfFieldValue)
-{
-    $multiParam = explode(',', $filterValue);
-    $hasMatched = 0;
-    foreach ($multiParam as &$value) {
-        if (filterCheckMethod($filterKey, $value, $acfFieldValue)) {
-            $hasMatched = 1;
-            break;
-        }
-    }
-    return $hasMatched;
-}
-function filterCheckMethod($urlGetKey, $urlGetValue, $acfFieldValue)
-{
-    if ($urlGetKey == 'hoteltyp' || $urlGetKey == 'lage') {
-        $result = is_numeric(array_search($urlGetValue, array_column($acfFieldValue, 'value')));
-    }
-    if ($urlGetKey == 'plz_ort' || $urlGetKey == 'hotelklassifikation') {
-        $result = strcmp(strtolower($acfFieldValue), strtolower($urlGetValue)) == 0;
-    }
-    return $result;
-}
-function setFilter($filterCheck, &$visibility)
-{
-    if ($filterCheck) {
-        array_push($visibility, 1);
-    } else {
-        array_push($visibility, 0);
-    }
-}
-
-
-//<print_r($wpdb->queries);
