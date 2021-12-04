@@ -86,7 +86,8 @@ function create_shortcode_hotels_filter_navigation()
     
     $args = array(
                   'post_type'      => 'hotel',
-                  'publish_status' => 'published'
+                  'publish_status' => 'published',
+                  'posts_per_page' => -1,
                );
 
     $query = new WP_Query($args);
@@ -144,9 +145,13 @@ function create_shortcode_hotels_filter_navigation()
             <?php endforeach; ?>
 
 
-            <button type="submit" class="btn btn-primary">Hotels anzeigen</button> &nbsp;&nbsp;
+            <button type="submit" class="btn btn-primary">Hotels anzeigen</button>
+            &nbsp;&nbsp;
             <a class="reset-filter" href="#">Filter
-                zurücksetzen</a>
+                zurücksetzen</a>&nbsp;&nbsp;
+            <span class="spinner-border" role="status">
+                <span class="sr-only">Loading...</span>
+            </span>
         </form>
     </div>
 </div>
@@ -169,23 +174,28 @@ function filter_hotels()
 {
     $filterData = array();
     $options = array();
+    $paged = 1;
 
     if (isset($_POST["filterParams"])) {
         $filterData = $_POST['filterParams'];
     }
 
+    if (isset($_POST["paged"])) {
+        $paged = $_POST['paged'];
+    }
+    
+    //
+    // generate meta_query arrays
+    //
     foreach ($filterData as $key => $value) {
-        $filterTypeKeys[] = $key;
         $options[$key] = explode(",", $value);
     }
-
     $meta_query = array(
         'relation' => 'And',
     );
 
     $i = 0;
     $ii = 0;
-    
     foreach ($options as $key => $value) {
         $meta_query[]['relation'] = 'OR';
         $ii = 0;
@@ -198,11 +208,10 @@ function filter_hotels()
         $i++;
     }
 
-    //echo '<pre>' . print_r($meta_query, 1) . '</pre>';
+    //echo '<pre>' . print_r($paged, 1) . '</pre>';
 
-
-    $count = get_option('posts_per_page', 1);
-    $paged = get_query_var('paged') ? get_query_var('paged') : 1;
+    $count = get_option('posts_per_page', 10);
+    //$paged = get_query_var('paged') ? get_query_var('paged') : 1;
     $offset = ($paged - 1) * $count;
     $args = array(
     'post_type'      => 'hotel',
@@ -213,8 +222,6 @@ function filter_hotels()
     'meta_query'	=> $meta_query
  );
 
- 
-   
 
     $ajaxposts = new WP_Query($args); ?>
 <div class="container">
@@ -247,11 +254,28 @@ function filter_hotels()
          echo '<pre>';
          print_r($wpdb->queries);
          echo '</pre>'; */
-        
 
-        
-        previous_posts_link('Zurück', $ajaxposts->max_num_pages);
-        next_posts_link('Weiter', $ajaxposts->max_num_pages); ?>
+        // echo '<pre>' . print_r($ajaxposts, 1) . '</pre>';
+
+        if ($ajaxposts->max_num_pages > 1):
+            
+            //previous_posts_link('Zurück static', $ajaxposts->max_num_pages);
+        //next_posts_link('Weiter static', $ajaxposts->max_num_pages);
+        $pagedNext = 1;
+        $pageprevious=1;
+        if ($paged == $ajaxposts->max_num_pages) {
+            $pageprevious=$paged-1;
+            $pagedNext=$ajaxposts->max_num_pages;
+        } elseif ($paged <= 1) {
+            $pageprevious=1;
+            $pagedNext=2;
+        } else {
+            $pageprevious=$paged-1;
+            $pagedNext=$paged+1;
+        } ?>
+        <a class="pagination" href="#" data-filter-params=<?php echo json_encode($filterData); ?> data-paged="<?php echo  $pageprevious; ?>">Zurück</a>
+        <a class="pagination" href="#" data-filter-params=<?php echo json_encode($filterData); ?> data-paged="<?php echo $pagedNext; ?>">Weiter</a>
+        <?php endif; ?>
     </div>
 </div>
 <?php

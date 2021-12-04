@@ -7,9 +7,13 @@ import $ from 'jquery';
 $(document).ready(function () {
   let urlUpd = '';
   let filterParams = getUrlParams();
+  let paged = 1;
 
-  loadHotelList(filterParams);
+  loadHotelList(filterParams, paged);
 
+  //
+  // Set active filter from url params
+  //
   $.each(filterParams, function (key, value) {
     let filterTypeOptions = value.split(',');
     $.each(filterTypeOptions, function (optionsKey, optionsValue) {
@@ -24,6 +28,9 @@ $(document).ready(function () {
     console.log('huhu');
   }); */
 
+  //
+  // reset all filters
+  //
   $('.reset-filter').on('click', function (event) {
     loadHotelList();
     window.history.pushState(null, '', '?');
@@ -35,6 +42,24 @@ $(document).ready(function () {
     event.preventDefault();
   });
 
+  //
+  // Pagination
+  //
+  $(document).on('click', '.pagination', function (event) {
+    filterParams = $.parseJSON($(this).attr('data-filter-params'));
+
+    paged = $(this).attr('data-paged');
+
+    console.log(paged);
+
+    loadHotelList(filterParams, paged);
+
+    event.preventDefault();
+  });
+
+  //
+  // Generate Array from checked filters on form submit
+  //
   $('#hotelfiltersForm').submit(function (event) {
     let filterType = [];
     let filterParams = {};
@@ -63,12 +88,18 @@ $(document).ready(function () {
 
     loadHotelList(filterParams);
 
+    //
+    // generate string for url params
+    //
     let filterParamsString = Object.keys(filterParams)
       .map(function (key) {
         return key + '=' + filterParams[key];
       })
       .join('&');
 
+    //
+    // Update url params
+    //
     urlUpd = '/hotels-uebersicht/?' + filterParamsString;
     window.history.pushState(null, '', urlUpd);
 
@@ -76,11 +107,11 @@ $(document).ready(function () {
   });
 });
 
-function loadHotelList(filterParams) {
-  ajaxRequest('filter_hotels', filterParams, '.hotel-item-tiles');
+function loadHotelList(filterParams, paged) {
+  ajaxRequest('filter_hotels', filterParams, '.hotel-item-tiles', paged);
 }
 
-function ajaxRequest(action, filterParams, divElement) {
+function ajaxRequest(action, filterParams, divElement, paged) {
   $.ajax({
     type: 'POST',
     url: '/wp-admin/admin-ajax.php',
@@ -88,11 +119,17 @@ function ajaxRequest(action, filterParams, divElement) {
     data: {
       action: action,
       filterParams: filterParams,
+      paged: paged,
+    },
+    beforeSend: function () {
+      $('#hotelfiltersForm').find('.spinner-border').show();
     },
     success: function (res) {
+      $('#hotelfiltersForm').find('.spinner-border').hide('slow');
       $(divElement).html(res);
     },
   });
+  return false;
 }
 
 function getUrlParams() {
