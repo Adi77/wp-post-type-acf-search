@@ -224,26 +224,26 @@ function filter_hotels()
 
 
     $ajaxposts = new WP_Query($args); ?>
-<div class="container">
-    <div class="row">
-        <?php
+
+<div class="row">
+    <?php
     if ($ajaxposts->have_posts()) {
         while ($ajaxposts->have_posts()) : $ajaxposts->the_post(); ?>
-        <div class="hotel-item col-md-4">
-            <div class="hotel-item__location"><?php echo get_field('plz_ort'); ?>
-            </div>
-            <div class="hotel-item__teaser-image"><?php echo get_the_post_thumbnail(); ?>
-            </div>
-            <div class="hotel-item__title"><?php echo get_the_title(); ?>
-            </div>
-            <div class="hotel-item__teaser-text"><?php echo get_field('teaser_text'); ?>
-            </div>
-            <a class="hotel-item__detail-link"
-                href="<?php echo get_post_permalink(); ?>">Das Haus
-                entdecken</a>
+    <div class="hotel-item col-md-4">
+        <div class="hotel-item__location"><?php echo get_field('plz_ort'); ?>
         </div>
+        <div class="hotel-item__teaser-image"><?php echo get_the_post_thumbnail(); ?>
+        </div>
+        <div class="hotel-item__title"><?php echo get_the_title(); ?>
+        </div>
+        <div class="hotel-item__teaser-text"><?php echo get_field('teaser_text'); ?>
+        </div>
+        <a class="hotel-item__detail-link"
+            href="<?php echo get_post_permalink(); ?>">Das Haus
+            entdecken</a>
+    </div>
 
-        <?php
+    <?php
         endwhile;
 
        
@@ -257,10 +257,11 @@ function filter_hotels()
 
         // echo '<pre>' . print_r($ajaxposts, 1) . '</pre>';
 
-        if ($ajaxposts->max_num_pages > 1):
+        if ($ajaxposts->max_num_pages > 1 && $paged < $ajaxposts->max_num_pages):
             
             //previous_posts_link('Zurück static', $ajaxposts->max_num_pages);
         //next_posts_link('Weiter static', $ajaxposts->max_num_pages);
+
         $pagedNext = 1;
         $pageprevious=1;
         if ($paged == $ajaxposts->max_num_pages) {
@@ -273,10 +274,12 @@ function filter_hotels()
             $pageprevious=$paged-1;
             $pagedNext=$paged+1;
         } ?>
-        <a class="pagination" href="#" data-filter-params=<?php echo json_encode($filterData); ?> data-paged="<?php echo  $pageprevious; ?>">Zurück</a>
-        <a class="pagination" href="#" data-filter-params=<?php echo json_encode($filterData); ?> data-paged="<?php echo $pagedNext; ?>">Weiter</a>
-        <?php endif; ?>
+
+    <div class="col-md-12 loadmore">
+        <button class=" btn btn-primary " data-filter-params=<?php echo json_encode($filterData); ?> data-paged="<?php echo $pagedNext; ?>">Mehr anzeigen</button>
     </div>
+
+    <?php endif; ?>
 </div>
 <?php
     } else {

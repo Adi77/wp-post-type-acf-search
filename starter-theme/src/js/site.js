@@ -8,6 +8,7 @@ $(document).ready(function () {
   let urlUpd = '';
   let filterParams = getUrlParams();
   let paged = 1;
+  let pagination = false;
 
   loadHotelList(filterParams, paged);
 
@@ -45,14 +46,14 @@ $(document).ready(function () {
   //
   // Pagination
   //
-  $(document).on('click', '.pagination', function (event) {
+  $(document).on('click', '.loadmore button', function (event) {
     filterParams = $.parseJSON($(this).attr('data-filter-params'));
 
     paged = $(this).attr('data-paged');
 
     console.log(paged);
 
-    loadHotelList(filterParams, paged);
+    loadHotelList(filterParams, paged, (pagination = true));
 
     event.preventDefault();
   });
@@ -107,11 +108,17 @@ $(document).ready(function () {
   });
 });
 
-function loadHotelList(filterParams, paged) {
-  ajaxRequest('filter_hotels', filterParams, '.hotel-item-tiles', paged);
+function loadHotelList(filterParams, paged, pagination) {
+  ajaxRequest(
+    'filter_hotels',
+    filterParams,
+    '.hotel-item-tiles',
+    paged,
+    pagination
+  );
 }
 
-function ajaxRequest(action, filterParams, divElement, paged) {
+function ajaxRequest(action, filterParams, divElement, paged, pagination) {
   $.ajax({
     type: 'POST',
     url: '/wp-admin/admin-ajax.php',
@@ -126,7 +133,12 @@ function ajaxRequest(action, filterParams, divElement, paged) {
     },
     success: function (res) {
       $('#hotelfiltersForm').find('.spinner-border').hide('slow');
-      $(divElement).html(res);
+      if (pagination) {
+        $('.loadmore button').parent().remove();
+        $(divElement).append(res);
+      } else {
+        $(divElement).html(res);
+      }
     },
   });
   return false;
