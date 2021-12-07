@@ -168,6 +168,80 @@ require get_template_directory() . '/inc/template-tags.php';
 require get_template_directory() . '/inc/template-functions.php';
 
 
+
+
+
+
+
+
+
+
+
+
+
+// Register Custom Post Type
+function hotels_post_type()
+{
+    $labels = array(
+        'name'                  => _x('Hotels', 'Post Type General Name', 'text_domain'),
+        'singular_name'         => _x('Hotel', 'Post Type Singular Name', 'text_domain'),
+        'menu_name'             => __('Hotels', 'text_domain'),
+        'name_admin_bar'        => __('Hotel', 'text_domain'),
+        'archives'              => __('Hotel Archiv', 'text_domain'),
+        'attributes'            => __('Hotel Attribute', 'text_domain'),
+        'parent_item_colon'     => __('Parent Hotel:', 'text_domain'),
+        'all_items'             => __('Alle Hotels', 'text_domain'),
+        'add_new_item'          => __('Neues Hotel hinzufügen', 'text_domain'),
+        'add_new'               => __('Neues Hotel', 'text_domain'),
+        'new_item'              => __('Neues Element', 'text_domain'),
+        'edit_item'             => __('Hotel bearbeiten', 'text_domain'),
+        'update_item'           => __('Hotel aktualisieren', 'text_domain'),
+        'view_item'             => __('Hotel anzeigen', 'text_domain'),
+        'view_items'            => __('Elemente anzeigen', 'text_domain'),
+        'search_items'          => __('Hotels suchen', 'text_domain'),
+        'not_found'             => __('Kein Hotel gefunden', 'text_domain'),
+        'not_found_in_trash'    => __('Kein Hotel gefunden im Papierkorb', 'text_domain'),
+        'featured_image'        => __('Featured Image', 'text_domain'),
+        'set_featured_image'    => __('Set featured image', 'text_domain'),
+        'remove_featured_image' => __('Remove featured image', 'text_domain'),
+        'use_featured_image'    => __('Use as featured image', 'text_domain'),
+        'insert_into_item'      => __('Insert into item', 'text_domain'),
+        'uploaded_to_this_item' => __('Uploaded to this item', 'text_domain'),
+        'items_list'            => __('Items list', 'text_domain'),
+        'items_list_navigation' => __('Items list navigation', 'text_domain'),
+        'filter_items_list'     => __('Filter items list', 'text_domain'),
+    );
+    $args = array(
+        'label'                 => __('Hotel', 'text_domain'),
+        'description'           => __('Hotel information.', 'text_domain'),
+        'labels'                => $labels,
+        'supports'              => array( 'title', 'editor', 'thumbnail', 'comments', 'revisions', 'custom-fields' ),
+        'taxonomies'            => array( 'category', 'post_tag', 'location', 'type' ),
+        'hierarchical'          => false,
+        'public'                => true,
+        'show_ui'               => true,
+        'show_in_menu'          => true,
+        'menu_position'         => 5,
+        'menu_icon'             => 'dashicons-admin-home',
+        'show_in_admin_bar'     => true,
+        'show_in_nav_menus'     => true,
+        'can_export'            => true,
+        'has_archive'           => true,
+        'exclude_from_search'   => false,
+        'publicly_queryable'    => true,
+        'capability_type'       => 'page',
+        'show_in_rest'          => true,
+    );
+    register_post_type('hotel', $args);
+}
+add_action('init', 'hotels_post_type', 0);
+
+
+
+
+
+
+
 function custom_head_cleanup()
 {
     if (!is_admin() && ($GLOBALS['pagenow'] !== 'wp-login.php') && ($GLOBALS['pagenow'] !== 'post.php')) {
