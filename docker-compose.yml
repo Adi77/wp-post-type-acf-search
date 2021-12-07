@@ -12,6 +12,7 @@ services:
       - ./starter-theme/:/var/www/html/wp-content/themes/starter-theme # Theme development
       #- ./mu-plugins/:/var/www/html/wp-content/mu-plugins
       - ./plugins/filter-acf/:/var/www/html/wp-content/plugins/filter-acf
+      - ./plugins/filter-acf-boilerplate/:/var/www/html/wp-content/plugins/filter-acf-boilerplate
     environment:
       WORDPRESS_DB_HOST: db
       WORDPRESS_DB_NAME: "wordpress"

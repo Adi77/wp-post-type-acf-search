@@ -169,16 +169,6 @@ require get_template_directory() . '/inc/template-functions.php';
 
 
 
-
-
-
-
-
-
-
-
-
-
 // Register Custom Post Type
 function hotels_post_type()
 {
@@ -235,9 +225,6 @@ function hotels_post_type()
     register_post_type('hotel', $args);
 }
 add_action('init', 'hotels_post_type', 0);
-
-
-
 
 
 
