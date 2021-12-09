@@ -105,11 +105,12 @@ class Filter_Acf_Boilerplate_Public
 
     public static function generate_hotel_filters()
     {
-        $result='';
+        $html='';
         $locationArr = array();
         $regionArr = array();
         $HotelClassArr = array();
         $allFilterData = array();
+        $typeSaveKey = '';
     
         $args = array(
                       'post_type'      => 'hotel',
@@ -118,54 +119,53 @@ class Filter_Acf_Boilerplate_Public
                    );
     
         $query = new WP_Query($args);
-        if ($query->have_posts()) :
-        ?>
-<div class="container">
-    <div class="row"><?php
-        while ($query->have_posts()) :
-            $query->the_post() ; ?>
-        <form id="hotelfiltersForm" class="form-inline"><?php
-        // collect filter values of all current items with no duplicates
+        if ($query->have_posts()) {
+            $html .= '<div class="container">';
+            $html .= '<div class="row">';
+            $html .= '<form id="hotelfiltersForm" class="form-inline">';
+            while ($query->have_posts()) {
+                $query->the_post() ;
+                
+                // collect filter values of all current items with no duplicates
     
-        // Location
-        foreach (get_field('location') as $sub) {
-            $locationArr[$sub['value']] = $sub['label'];
-        }
-        $allFilterData['location'] = $locationArr;
+                // Location
+                foreach (get_field('location') as $sub) {
+                    $locationArr[$sub['value']] = $sub['label'];
+                }
+                $allFilterData['location'] = $locationArr;
     
-        // plz_ort
-        $regionArr[rawurlencode(get_field('plz_ort'))] = get_field('plz_ort');
-        $allFilterData['plz_ort'] = $regionArr;
+                // plz_ort
+                $regionArr[rawurlencode(get_field('plz_ort'))] = get_field('plz_ort');
+                $allFilterData['plz_ort'] = $regionArr;
     
-        // Hoteltyp
-        foreach (get_field('hoteltyp') as $sub) {
-            $hotelTypArr[$sub['value']] = $sub['label'];
-        }
-        $allFilterData['hoteltyp'] = $hotelTypArr;
+                // Hoteltyp
+                foreach (get_field('hoteltyp') as $sub) {
+                    $hotelTypArr[$sub['value']] = $sub['label'];
+                }
+                $allFilterData['hoteltyp'] = $hotelTypArr;
     
-        // Hotel Klassifikation
-        $HotelClassArr[get_field('hotelklassifikation')] = get_field('hotelklassifikation');
-        $allFilterData['hotelklassifikation'] = $HotelClassArr;
-        endwhile;
+                // Hotel Klassifikation
+                $HotelClassArr[get_field('hotelklassifikation')] = get_field('hotelklassifikation');
+                $allFilterData['hotelklassifikation'] = $HotelClassArr;
+            }
             
-        //echo '<pre>' . var_export($allFilterData, true) . '</pre>';
+            //echo '<pre>' . var_export($allFilterData, true) . '</pre>';
     
-        foreach ($allFilterData as $fieldName => $fieldRows): ?>
-            <div class="form-group mb-2 col-md-12"
-                id="<?php echo $fieldName; ?>">
-                <?php foreach ($fieldRows as $key => $value): ?>
-                <label class="form-check-label"
-                    for="<?php echo $key ?>">
-                    <?php echo $value ?>
-                </label>
-                <input class="form-check-input hotel-list_filter" type="checkbox"
-                    value="<?php echo $key ?>" <?php $typeSaveKey = str_replace("%", "", $key); ?>
-                id="<?php echo $typeSaveKey ?>"
-                name="hotels-filter-checkbox">
-
-                <?php endforeach; ?>
-            </div><?php endforeach; ?>
-            <button type="submit" class="btn btn-primary">Hotels anzeigen</button>
+            foreach ($allFilterData as $fieldName => $fieldRows) {
+                $html .='<div class="form-group mb-2 col-md-12"
+                id="'. $fieldName .'">';
+                foreach ($fieldRows as $key => $value) {
+                    $html .= '<label class="form-check-label"
+                    for="'. $key .'">
+                    '. $value .'
+                </label>';
+                    $typeSaveKey = str_replace("%", "", $key);
+                    $html .= '<input class="form-check-input hotel-list_filter" type="checkbox"
+                    value="'. $key .'" id="'. $key .'" name="hotels-filter-checkbox">';
+                }
+                $html .= '</div>';
+            }
+            $html .='<button type="submit" class="btn btn-primary">Hotels anzeigen</button>
             &nbsp;&nbsp;
             <a class="reset-filter" href="#">Filter
                 zurücksetzen</a>&nbsp;&nbsp;
@@ -176,11 +176,11 @@ class Filter_Acf_Boilerplate_Public
         </form>
     </div>
 </div>
-<div class="container hotel-item-tiles">&nbsp;</div>
-<?php
-        wp_reset_postdata();
-        endif;
-        return $result;
+<div class="container hotel-item-tiles">&nbsp;</div>';
+
+            wp_reset_postdata();
+        }
+        return $html;
     }
     
     
