@@ -152,42 +152,27 @@ class Filter_Acf_Boilerplate_Public
             //echo '<pre>' . var_export($allFilterData, true) . '</pre>';
     
             foreach ($allFilterData as $fieldName => $fieldRows) {
-                $html .='<div class="form-group mb-2 col-md-12"
-                id="'. $fieldName .'">';
+                $html .='<div class="form-group mb-2 col-md-12" id="'. $fieldName .'">';
                 foreach ($fieldRows as $key => $value) {
-                    $html .= '<label class="form-check-label"
-                    for="'. $key .'">
-                    '. $value .'
-                </label>';
+                    $html .= '<label class="form-check-label" for="'. $key .'"> '. $value .' </label>';
                     $typeSaveKey = str_replace("%", "", $key);
-                    $html .= '<input class="form-check-input hotel-list_filter" type="checkbox"
-                    value="'. $key .'" id="'. $key .'" name="hotels-filter-checkbox">';
+                    $html .= '<input class="form-check-input hotel-list_filter" type="checkbox" value="'. $key .'" id="'. $key .'" name="hotels-filter-checkbox">';
                 }
                 $html .= '</div>';
             }
-            $html .='<button type="submit" class="btn btn-primary">Hotels anzeigen</button>
-            &nbsp;&nbsp;
-            <a class="reset-filter" href="#">Filter
-                zurücksetzen</a>&nbsp;&nbsp;
-            <span class="spinner-border" role="status">
-                <span class="sr-only">Loading...</span>
-            </span>
-            <span class="hotel-item-count"></span>
-        </form>
-    </div>
-</div>
-<div class="container hotel-item-tiles">&nbsp;</div>';
+            $html .='<button type="submit" class="btn btn-primary">Hotels anzeigen</button>&nbsp;&nbsp;';
+            $html .= '<a class="reset-filter" href="#">Filter zurücksetzen</a>&nbsp;&nbsp;';
+            $html .= '<span class="spinner-border" role="status"><span class="sr-only">Loading...</span></span>';
+            $html .='<span class="hotel-item-count"></span>';
+            $html .= '</form></div></div>';
+            $html .= '<div class="container hotel-item-tiles">&nbsp;</div>';
 
             wp_reset_postdata();
         }
         return $html;
     }
     
-    
-    
-        
-    
-    
+
     
     public function filter_hotels_list()
     {
@@ -259,10 +244,11 @@ class Filter_Acf_Boilerplate_Public
 
 
     <?php $itemcount = $ajaxposts->found_posts; ?>
-
+    <div class="col-md-12 itemcount">
+        <span class="total-hotels-count"><?php echo $itemcount; ?></span> Hotels
+    </div>
     <div class="col-md-12 loadmore">
-        <div class="itemcount"><?php echo $itemcount; ?> Hotels
-        </div>
+
         <button class=" btn btn-primary " data-filter-params=<?php echo json_encode($filterData); ?>
             data-paged="<?php echo $pagedNext; ?>">Mehr
             anzeigen</button>

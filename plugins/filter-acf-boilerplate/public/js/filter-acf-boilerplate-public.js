@@ -173,13 +173,31 @@
         $('#hotelfiltersForm').find('.spinner-border').hide('slow');
         if (divElement == '.hotel-item-tiles') {
           if (pagination) {
-            $('.loadmore button').parent().remove();
+            $('.itemcount, .loadmore').remove();
             $(divElement).append(res);
           } else {
-            $(divElement).html(res);
+            $(divElement)
+              .html(res)
+              .promise()
+              .done(function () {
+                if ($('.total-hotels-count').length) {
+                  $('.hotel-item-count').replaceWith(
+                    "<span class='hotel-item-count'>" +
+                      $('.total-hotels-count').html() +
+                      '</span>'
+                  );
+                } else {
+                  $('.hotel-item-count').replaceWith(
+                    "<span class='hotel-item-count'>" +
+                      $('.hotel-item').length +
+                      '</span>'
+                  );
+                }
+              });
           }
           $('.itemcount').prepend($('.hotel-item').length + ' von ');
-        } else {
+        }
+        if (divElement == '.hotel-item-count') {
           $(divElement).html(res);
         }
       },
