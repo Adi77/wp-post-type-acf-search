@@ -156,7 +156,7 @@ class Filter_Acf_Boilerplate_Public
                 foreach ($fieldRows as $key => $value) {
                     $html .= '<label class="form-check-label" for="'. $key .'"> '. $value .' </label>';
                     $typeSaveKey = str_replace("%", "", $key);
-                    $html .= '<input class="form-check-input hotel-list_filter" type="checkbox" value="'. $key .'" id="'. $key .'" name="hotels-filter-checkbox">';
+                    $html .= '<input class="form-check-input hotel-list_filter" type="checkbox" value="'. $key .'" id="'. $typeSaveKey .'" name="hotels-filter-checkbox">';
                 }
                 $html .= '</div>';
             }
