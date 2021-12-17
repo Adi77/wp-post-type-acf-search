@@ -106,9 +106,6 @@ class Filter_Acf_Boilerplate_Public
     public static function generate_hotel_filters()
     {
         $html='';
-        $locationArr = array();
-        $regionArr = array();
-        $HotelClassArr = array();
         $allFilterData = array();
         $typeSaveKey = '';
     
@@ -116,41 +113,20 @@ class Filter_Acf_Boilerplate_Public
                       'post_type'      => 'hotel',
                       'publish_status' => 'published',
                       'posts_per_page' => -1,
+                      'no_found_rows' => true, // counts posts, remove if you need pagination
+                      'update_post_term_cache' => false, // queries terms, remove if you need categories or tags
+                      'update_post_meta_cache' => false, // queries post meta, remove if you need post meta
                    );
     
         $query = new WP_Query($args);
+
         if ($query->have_posts()) {
+            $allFilterData = Filter_Acf_Boilerplate_Public::collect_filter_data($query);
+
             $html .= '<div class="container">';
             $html .= '<div class="row">';
             $html .= '<form id="hotelfiltersForm" class="form-inline">';
-            while ($query->have_posts()) {
-                $query->the_post() ;
-                
-                // collect filter values of all current items with no duplicates
-    
-                // Location
-                foreach (get_field('location') as $sub) {
-                    $locationArr[$sub['value']] = $sub['label'];
-                }
-                $allFilterData['location'] = $locationArr;
-    
-                // plz_ort
-                $regionArr[rawurlencode(get_field('plz_ort'))] = get_field('plz_ort');
-                $allFilterData['plz_ort'] = $regionArr;
-    
-                // Hoteltyp
-                foreach (get_field('hoteltyp') as $sub) {
-                    $hotelTypArr[$sub['value']] = $sub['label'];
-                }
-                $allFilterData['hoteltyp'] = $hotelTypArr;
-    
-                // Hotel Klassifikation
-                $HotelClassArr[get_field('hotelklassifikation')] = get_field('hotelklassifikation');
-                $allFilterData['hotelklassifikation'] = $HotelClassArr;
-            }
-            
-            //echo '<pre>' . var_export($allFilterData, true) . '</pre>';
-    
+
             foreach ($allFilterData as $fieldName => $fieldRows) {
                 $html .='<div class="form-group mb-2 col-md-12" id="'. $fieldName .'">';
                 foreach ($fieldRows as $key => $value) {
@@ -172,7 +148,40 @@ class Filter_Acf_Boilerplate_Public
         return $html;
     }
     
+    //
+    // collect filter values of all current items with no duplicates
+    //
+    public static function collect_filter_data($query)
+    {
+        $locationArr = array();
+        $regionArr = array();
+        $HotelClassArr = array();
+        while ($query->have_posts()) {
+            $query->the_post() ;
 
+            // Location
+            foreach (get_field('location') as $sub) {
+                $locationArr[$sub['value']] = $sub['label'];
+            }
+            $allFilterData['location'] = $locationArr;
+
+            // plz_ort
+            $regionArr[rawurlencode(get_field('plz_ort'))] = get_field('plz_ort');
+            $allFilterData['plz_ort'] = $regionArr;
+
+            // Hoteltyp
+            foreach (get_field('hoteltyp') as $sub) {
+                $hotelTypArr[$sub['value']] = $sub['label'];
+            }
+            $allFilterData['hoteltyp'] = $hotelTypArr;
+
+            // Hotel Klassifikation
+            $HotelClassArr[get_field('hotelklassifikation')] = get_field('hotelklassifikation');
+            $allFilterData['hotelklassifikation'] = $HotelClassArr;
+        }
+
+        return $allFilterData;
+    }
     
     public function filter_hotels_list()
     {
@@ -185,9 +194,7 @@ class Filter_Acf_Boilerplate_Public
         }
         
         $meta_query = $this->generateMetaQuery($filterData);
-    
-        //echo '<pre>' . print_r($paged, 1) . '</pre>';
-    
+
         $count = get_option('posts_per_page', 10);
         $offset = ($paged - 1) * $count;
         $args = array(
@@ -268,34 +275,45 @@ class Filter_Acf_Boilerplate_Public
 
     public function filter_hotels_data()
     {
-        $filterData = array();
+        $allFilterData = array();
         $itemcount = 0;
-        $meta_query = $this->generateMetaQuery($filterData);
+        $meta_query = $this->generateMetaQuery();
     
         // execute db query
         $args = array(
         'post_type'      => 'hotel',
         'publish_status' => 'published',
         'posts_per_page' => -1,
-        'meta_query'	=> $meta_query
+        'meta_query'	=> $meta_query,
+        //'no_found_rows' => true, // counts posts, remove if you need pagination
+        'update_post_term_cache' => false, // queries terms, remove if you need categories or tags
+        'update_post_meta_cache' => false, // queries post meta, remove if you need post meta
         );
     
         $ajaxposts = new WP_Query($args);
-    
-        if ($ajaxposts->have_posts()) {
-            $itemcount = $ajaxposts->found_posts;
-            //echo '<pre>' . print_r($itemcount, 1) . '</pre>';
-            echo $itemcount;
-        } else {
-            echo 0;
-        }
+
+        $itemcount = $ajaxposts->found_posts;
+        
+
+        //
+        // collect filter data from preview selected posts
+        //
+        $allFilterData = Filter_Acf_Boilerplate_Public::collect_filter_data($ajaxposts);
+
+        $allFilterData['itemcount'] = $itemcount;
+
+        // echo '<pre>' . print_r($itemcount, 1) . '</pre>';
+
+
+        echo json_encode($allFilterData);
+
         exit;
     }
     
     
     
     
-    public function generateMetaQuery($filterData)
+    public function generateMetaQuery($filterData = array())
     {
         $options = array();
     
