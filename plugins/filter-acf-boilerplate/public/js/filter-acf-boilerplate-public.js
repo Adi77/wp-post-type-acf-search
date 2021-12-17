@@ -15,6 +15,7 @@
     filterParams = getUrlParams();
 
     loadFilteredItemsList(filterParams, paged);
+    loadFilteredItemsData(filterParams);
 
     /*
      * Set active filter from url params
@@ -34,6 +35,7 @@
      */
     $('.reset-filter').on('click', function (event) {
       loadFilteredItemsList();
+      previewFilterState();
       window.history.pushState(null, '', '?');
       $('.hotel-item-count').empty();
       $('input[name="hotels-filter-checkbox"]').each(function () {
@@ -116,27 +118,13 @@
     return filterParams;
   }
 
-  function loadFilteredItemsData(filterParams) {
-    ajaxRequest('filter_hotels_data', filterParams, '.hotel-item-count');
-  }
-
   function loadFilteredItemsList(filterParams, paged, pagination) {
-    ajaxRequest(
-      'filter_hotels_list',
-      filterParams,
-      '.hotel-item-tiles',
-      paged,
-      pagination
-    );
-  }
-
-  function ajaxRequest(action, filterParams, divElement, paged, pagination) {
     $.ajax({
       type: 'POST',
       url: '/wp-admin/admin-ajax.php',
       dataType: 'html',
       data: {
-        action: action,
+        action: 'filter_hotels_list',
         filterParams: filterParams,
         paged: paged,
       },
@@ -145,35 +133,54 @@
       },
       success: function (res) {
         $('#hotelfiltersForm').find('.spinner-border').hide('slow');
-        if (divElement == '.hotel-item-tiles') {
-          if (pagination) {
-            $('.itemcount, .loadmore').remove();
-            $(divElement).append(res);
-          } else {
-            $(divElement)
-              .html(res)
-              .promise()
-              .done(function () {
-                if ($('.total-hotels-count').length) {
-                  $('.hotel-item-count').replaceWith(
-                    "<span class='hotel-item-count'>" +
-                      $('.total-hotels-count').html() +
-                      '</span>'
-                  );
-                } else {
-                  $('.hotel-item-count').replaceWith(
-                    "<span class='hotel-item-count'>" +
-                      $('.hotel-item').length +
-                      '</span>'
-                  );
-                }
-              });
-          }
-          $('.itemcount').prepend($('.hotel-item').length + ' von ');
+
+        if (pagination) {
+          $('.itemcount, .loadmore').remove();
+          $('.hotel-item-tiles').append(res);
+        } else {
+          $('.hotel-item-tiles')
+            .html(res)
+            .promise()
+            .done(function () {
+              if ($('.total-hotels-count').length) {
+                $('.hotel-item-count').replaceWith(
+                  "<span class='hotel-item-count'>" +
+                    $('.total-hotels-count').html() +
+                    '</span>'
+                );
+              } else {
+                $('.hotel-item-count').replaceWith(
+                  "<span class='hotel-item-count'>" +
+                    $('.hotel-item').length +
+                    '</span>'
+                );
+              }
+            });
         }
-        if (divElement == '.hotel-item-count') {
-          $(divElement).html(res);
-        }
+        $('.itemcount').prepend($('.hotel-item').length + ' von ');
+      },
+    });
+    return false;
+  }
+
+  function loadFilteredItemsData(filterParams) {
+    $.ajax({
+      type: 'POST',
+      url: '/wp-admin/admin-ajax.php',
+      dataType: 'JSON',
+      data: {
+        action: 'filter_hotels_data',
+        filterParams: filterParams,
+      },
+      beforeSend: function () {
+        $('#hotelfiltersForm').find('.spinner-border').show();
+      },
+      success: function (res) {
+        $('#hotelfiltersForm').find('.spinner-border').hide('slow');
+
+        let itemcount = previewFilterState(res);
+
+        $('.hotel-item-count').html(itemcount);
       },
     });
     return false;
@@ -190,5 +197,31 @@
       result[qs[i][0]] = qs[i][1];
     }
     return result;
+  }
+
+  function previewFilterState(res = 0) {
+    if (res != 0) {
+      $.each(
+        $('input[name="hotels-filter-checkbox"]'),
+        function (index, value) {
+          $('input[value="' + this.value + '"]').attr('disabled', true);
+        }
+      );
+      $.each(Object.values(res), function (key, value2) {
+        let arr = Object.keys(value2);
+        $.each(arr, function (key, value3) {
+          $('input[value="' + value3 + '"]').removeAttr('disabled');
+        });
+      });
+    } else {
+      $.each(
+        $('input[name="hotels-filter-checkbox"]'),
+        function (index, value) {
+          $('input[value="' + this.value + '"]').removeAttr('disabled');
+        }
+      );
+    }
+
+    return res['itemcount'];
   }
 })(jQuery);
