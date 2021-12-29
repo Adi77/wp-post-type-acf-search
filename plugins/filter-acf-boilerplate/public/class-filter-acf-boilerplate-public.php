@@ -111,7 +111,7 @@ class Filter_Acf_Boilerplate_Public
     
         $args = array(
                       'post_type'      => 'hotel',
-                      'publish_status' => 'published',
+                      'post_status' => 'publish',
                       'posts_per_page' => -1,
                       'no_found_rows' => true, // counts posts, remove if you need pagination
                       'update_post_term_cache' => false, // queries terms, remove if you need categories or tags
@@ -199,7 +199,7 @@ class Filter_Acf_Boilerplate_Public
         $offset = ($paged - 1) * $count;
         $args = array(
         'post_type'      => 'hotel',
-        'publish_status' => 'published',
+        'post_status' => 'publish',
         'posts_per_page' => $count,
         'paged' => $paged,
         'offset' => $offset,
@@ -282,7 +282,7 @@ class Filter_Acf_Boilerplate_Public
         // execute db query
         $args = array(
         'post_type'      => 'hotel',
-        'publish_status' => 'published',
+        'post_status' => 'publish',
         'posts_per_page' => -1,
         'meta_query'	=> $meta_query,
         //'no_found_rows' => true, // counts posts, remove if you need pagination
@@ -301,9 +301,6 @@ class Filter_Acf_Boilerplate_Public
         $allFilterData = Filter_Acf_Boilerplate_Public::collect_filter_data($ajaxposts);
 
         $allFilterData['itemcount'] = $itemcount;
-
-        // echo '<pre>' . print_r($itemcount, 1) . '</pre>';
-
 
         echo json_encode($allFilterData);
 
@@ -350,3 +347,6 @@ class Filter_Acf_Boilerplate_Public
 
 
 add_shortcode('hotels-filters', array( 'Filter_Acf_Boilerplate_Public', 'generate_hotel_filters' ));
+
+
+// echo '<pre>' . print_r($itemcount, 1) . '</pre>';
