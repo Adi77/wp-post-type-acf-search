@@ -61,6 +61,8 @@
     $('.hotel-list_filter').on('click', function (event) {
       filterParams = prepareFilterQuery($(this).parent().parent());
       loadFilteredItemsData(filterParams);
+
+      //loadFilteredItemsList(filterParams);
     });
 
     /*
