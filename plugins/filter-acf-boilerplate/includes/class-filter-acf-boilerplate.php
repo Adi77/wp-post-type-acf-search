@@ -156,17 +156,15 @@ class Filter_Acf_Boilerplate
 
         $this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_styles');
         $this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
-
-
-
+        
         $this->loader->add_action('admin_init', $plugin_admin, 'acf_filters_page_init');
         $this->loader->add_action('admin_menu', $plugin_admin, 'acf_filters_add_plugin_page');
 
-
-
-        
         $this->loader->add_action('wp_ajax_acf_filter_list', $plugin_admin, 'acf_filter_list');
         $this->loader->add_action('wp_ajax_nopriv_acf_filter_list', $plugin_admin, 'acf_filter_list');
+
+        $this->loader->add_action('wp_ajax_generated_shortcodes_list', $plugin_admin, 'generated_shortcodes_list');
+        $this->loader->add_action('wp_ajax_nopriv_generated_shortcodes_list', $plugin_admin, 'generated_shortcodes_list');
     }
 
     /**

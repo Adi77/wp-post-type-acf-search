@@ -116,15 +116,6 @@ class Filter_Acf_Boilerplate_Admin
 
 
 
-    public function plugin_setup_menu()
-    {
-        //add_menu_page('ACF Filter Config Page', 'ACF Filter Config', 'manage_options', 'test-plugin', array( $this, 'config_page_init' ));
-
-        //add_options_page('ACF Filter Config Page', 'ACF Filter Config', 'manage_options', 'filter-acf-boilerplate', array( $this, 'config_page_init' ));
-    }
-
-
-
 
 
     public function acf_filters_add_plugin_page()
@@ -181,7 +172,7 @@ class Filter_Acf_Boilerplate_Admin
 
 
     </form>
-
+    <div class="generated-shortcodes-list"></div>
 </div>
 <?php
     }
@@ -194,13 +185,13 @@ class Filter_Acf_Boilerplate_Admin
         }
         $acfParentGroups = $this->load_acf_groups_by_position($postType);
         $placeholdersForAcfParentIds = implode(', ', array_fill(0, count($acfParentGroups), '%d'));
-        $query = "SELECT post_title, post_excerpt, post_name, post_parent FROM {$this->db->prefix}posts 
+        $query = "SELECT id, post_title, post_excerpt, post_name, post_parent FROM {$this->db->prefix}posts 
         WHERE 
         post_parent IN ($placeholdersForAcfParentIds) 
         AND post_type = 'acf-field' 
         AND post_status = 'publish'";
         $acfFieldsRes = $this->db->get_results($this->db->prepare($query, array_flip($acfParentGroups)));
-
+        echo '<div id="'. $postType .'" class="postType">';
         foreach ($acfParentGroups as $groupId => $groupName) {
             $i=0;
             foreach ($acfFieldsRes as $row1) {
@@ -208,9 +199,34 @@ class Filter_Acf_Boilerplate_Admin
                     echo '<h2>'. $groupName .'</h2>';
                     $i++;
                 }
-                echo '<input type="checkbox" id="'. $row1->post_excerpt .'" name='. $row1->post_excerpt .'><label for="'. $row1->post_excerpt .'">'. $row1->post_title .'</label>&nbsp;&nbsp;&nbsp;&nbsp;';
+                if ($groupId == $row1->post_parent) {
+                    echo '<input type="checkbox" data-acf-id="'. $row1->id .'" id="'. $row1->post_excerpt .'" name='. urlencode($groupName) .'><label for="'. $row1->post_excerpt .'">'. $row1->post_title .'</label>&nbsp;&nbsp;&nbsp;&nbsp;';
+                }
             }
         }
+        echo '</div>';
+        exit;
+    }
+
+
+    public function generated_shortcodes_list()
+    {
+        if (isset($_POST["filterIds"])) {
+            $filterIds = $_POST['filterIds'];
+        }
+        if (isset($_POST["postTypeName"])) {
+            $postTypeName = $_POST['postTypeName'];
+        }
+        $shortcode = '[acf_filters postType="'. $postTypeName .'" fields="';
+
+        foreach ($filterIds as $filterId) {
+            $shortcode .= $filterId .',';
+        }
+        $shortcode = rtrim($shortcode, ",");
+        $shortcode .= '"]';
+   
+        echo $shortcode;
+
         exit;
     }
 

@@ -36,17 +36,22 @@
     });
 
     /*
-     * Generate shortcode
+     * Generate shortcodes
      */
-    let filterName = [];
+    let filterIds = [];
+    let postTypeName = '';
     $('#acfFilters').submit(function (event) {
       //$(document).on('submit', '#acfFilters', function(event){
+
       $(this)
         .find('input:checked')
         .each(function (index) {
-          filterName[index] = $(this).attr('id');
+          filterIds[index] = $(this).attr('data-acf-id');
         });
-      console.log(filterName);
+
+      postTypeName = $(this).find('div.postType').attr('id');
+
+      generateShortcodes(filterIds, postTypeName);
 
       event.preventDefault();
     });
@@ -68,6 +73,28 @@
         $('#acfFilters').find('.spinner-border').hide('slow');
 
         $('.acf-filter-list').html(res);
+      },
+    });
+    return false;
+  }
+
+  function generateShortcodes(filterIds, postTypeName) {
+    $.ajax({
+      type: 'POST',
+      url: '/wp-admin/admin-ajax.php',
+      dataType: 'Html',
+      data: {
+        action: 'generated_shortcodes_list',
+        filterIds: filterIds,
+        postTypeName: postTypeName,
+      },
+      beforeSend: function () {
+        $('#acfFilters').find('.spinner-border').show();
+      },
+      success: function (res) {
+        $('#acfFilters').find('.spinner-border').hide('slow');
+
+        $('.generated-shortcodes-list').html(res);
       },
     });
     return false;
