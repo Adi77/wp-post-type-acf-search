@@ -46,7 +46,7 @@
       $(this)
         .find('input:checked')
         .each(function (index) {
-          filterIds[index] = $(this).attr('data-acf-id');
+          filterIds[index] = $(this).attr('id');
         });
 
       postTypeName = $(this).find('div.postType').attr('id');

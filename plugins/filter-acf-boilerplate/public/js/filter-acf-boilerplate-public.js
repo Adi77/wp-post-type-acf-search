@@ -6,16 +6,27 @@
    */
 
   $(document).ready(function () {
-    let urlUpd = '';
-    let filterParams = [];
-    let filterTypeOptions = [];
-    let paged = 1;
-    let pagination = false;
+    let urlUpd = '',
+      filterParams = [],
+      filterTypeOptions = [],
+      paged = 1,
+      pagination = false,
+      shortcodeAttrPostType = $('#hotelfiltersForm')
+        .find('#postType')
+        .attr('value'),
+      shortcodeAttrAcfFieldIds = $('#hotelfiltersForm')
+        .find('#acfFieldIds')
+        .attr('value');
 
     filterParams = getUrlParams();
 
     loadFilteredItemsList(filterParams, paged);
-    loadFilteredItemsData(filterParams);
+
+    loadFilteredItemsData(
+      filterParams,
+      shortcodeAttrPostType,
+      shortcodeAttrAcfFieldIds
+    );
 
     /*
      * Set active filter from url params
@@ -60,7 +71,12 @@
      */
     $('.hotel-list_filter').on('click', function (event) {
       filterParams = prepareFilterQuery($(this).parent().parent());
-      loadFilteredItemsData(filterParams);
+
+      loadFilteredItemsData(
+        filterParams,
+        shortcodeAttrPostType,
+        shortcodeAttrAcfFieldIds
+      );
 
       //loadFilteredItemsList(filterParams);
     });
@@ -165,7 +181,11 @@
     return false;
   }
 
-  function loadFilteredItemsData(filterParams) {
+  function loadFilteredItemsData(
+    filterParams,
+    shortcodeAttrPostType,
+    shortcodeAttrAcfFieldIds
+  ) {
     $.ajax({
       type: 'POST',
       url: '/wp-admin/admin-ajax.php',
@@ -173,6 +193,8 @@
       data: {
         action: 'filter_hotels_data',
         filterParams: filterParams,
+        shortcodeAttrPostType: shortcodeAttrPostType,
+        shortcodeAttrAcfFieldIds: shortcodeAttrAcfFieldIds,
       },
       beforeSend: function () {
         $('#hotelfiltersForm').find('.spinner-border').show();

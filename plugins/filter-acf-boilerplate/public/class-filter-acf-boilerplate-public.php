@@ -102,15 +102,20 @@ class Filter_Acf_Boilerplate_Public
 
 
 
-
-    public static function generate_hotel_filters()
+    public static function generate_hotel_filters($attr)
     {
         $html='';
         $allFilterData = array();
         $typeSaveKey = '';
+
+        $scArgs = shortcode_atts(array(
+            'posttype' => '',
+            'fields' => ''
+
+        ), $attr);
     
         $args = array(
-                      'post_type'      => 'hotel',
+                      'post_type'      => $scArgs['posttype'],
                       'post_status' => 'publish',
                       'posts_per_page' => -1,
                       'no_found_rows' => true, // counts posts, remove if you need pagination
@@ -121,11 +126,13 @@ class Filter_Acf_Boilerplate_Public
         $query = new WP_Query($args);
 
         if ($query->have_posts()) {
-            $allFilterData = Filter_Acf_Boilerplate_Public::collect_filter_data($query);
+            $allFilterData = Filter_Acf_Boilerplate_Public::collect_filter_data($query, $scArgs['fields']);
 
             $html .= '<div class="container">';
             $html .= '<div class="row">';
             $html .= '<form id="hotelfiltersForm" class="form-inline">';
+            $html .= '<input type="hidden" id="postType" name="postType" value="'. $scArgs['posttype'] .'">';
+            $html .= '<input type="hidden" id="acfFieldIds" name="acfFieldIds" value="'. $scArgs['fields'] .'">';
 
             foreach ($allFilterData as $fieldName => $fieldRows) {
                 $html .='<div class="form-group mb-2 col-md-12" id="'. $fieldName .'">';
@@ -151,36 +158,28 @@ class Filter_Acf_Boilerplate_Public
     //
     // collect filter values of all current items with no duplicates
     //
-    public static function collect_filter_data($query)
+    public static function collect_filter_data($query, $acfFieldIds)
     {
-        $locationArr = array();
-        $regionArr = array();
-        $HotelClassArr = array();
+        $acfFieldIdsArr = explode(",", $acfFieldIds);
+        
+        $fieldArr = array();
+
         while ($query->have_posts()) {
             $query->the_post() ;
-
-            // Location
-            foreach (get_field('location') as $sub) {
-                $locationArr[$sub['value']] = $sub['label'];
+      
+            foreach ($acfFieldIdsArr as $acfFieldId) {
+                if (gettype(get_field($acfFieldId)) == 'string') {
+                    $fieldArr[$acfFieldId][rawurlencode(get_field($acfFieldId))] = get_field($acfFieldId);
+                } else {
+                    foreach (get_field($acfFieldId) as $acfFieldIdItem) {
+                        $fieldArr[$acfFieldId][$acfFieldIdItem['value']] = $acfFieldIdItem['label'];
+                    }
+                }
             }
-            $allFilterData['location'] = $locationArr;
-
-            // plz_ort
-            $regionArr[rawurlencode(get_field('plz_ort'))] = get_field('plz_ort');
-            $allFilterData['plz_ort'] = $regionArr;
-
-            // Hoteltyp
-            foreach (get_field('hoteltyp') as $sub) {
-                $hotelTypArr[$sub['value']] = $sub['label'];
-            }
-            $allFilterData['hoteltyp'] = $hotelTypArr;
-
-            // Hotel Klassifikation
-            $HotelClassArr[get_field('hotelklassifikation')] = get_field('hotelklassifikation');
-            $allFilterData['hotelklassifikation'] = $HotelClassArr;
+            $allFilterData[$acfFieldId] = $fieldArr;
         }
 
-        return $allFilterData;
+        return $fieldArr;
     }
     
     public function filter_hotels_list()
@@ -279,9 +278,15 @@ class Filter_Acf_Boilerplate_Public
         $itemcount = 0;
         $meta_query = $this->generateMetaQuery();
     
+   
+        if (isset($_POST["shortcodeAttrPostType"])) {
+            $shortcodeAttrPostType = $_POST['shortcodeAttrPostType'];
+        }
+
+     
         // execute db query
         $args = array(
-        'post_type'      => 'hotel',
+        'post_type'      => $shortcodeAttrPostType,
         'post_status' => 'publish',
         'posts_per_page' => -1,
         'meta_query'	=> $meta_query,
@@ -298,7 +303,12 @@ class Filter_Acf_Boilerplate_Public
         //
         // collect filter data from preview selected posts
         //
-        $allFilterData = Filter_Acf_Boilerplate_Public::collect_filter_data($ajaxposts);
+
+        if (isset($_POST["shortcodeAttrAcfFieldIds"])) {
+            $shortcodeAttrAcfFieldIds = $_POST['shortcodeAttrAcfFieldIds'];
+        }
+
+        $allFilterData = Filter_Acf_Boilerplate_Public::collect_filter_data($ajaxposts, $shortcodeAttrAcfFieldIds);
 
         $allFilterData['itemcount'] = $itemcount;
 
@@ -346,7 +356,9 @@ class Filter_Acf_Boilerplate_Public
 }
 
 
-add_shortcode('hotels-filters', array( 'Filter_Acf_Boilerplate_Public', 'generate_hotel_filters' ));
+//add_shortcode('hotels-filters', array( 'Filter_Acf_Boilerplate_Public', 'generate_hotel_filters' ));
 
+
+add_shortcode('acf-filters', array( 'Filter_Acf_Boilerplate_Public', 'generate_hotel_filters' ));
 
 // echo '<pre>' . print_r($itemcount, 1) . '</pre>';

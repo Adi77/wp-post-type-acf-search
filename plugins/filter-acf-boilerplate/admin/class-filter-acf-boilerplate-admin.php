@@ -217,7 +217,7 @@ class Filter_Acf_Boilerplate_Admin
         if (isset($_POST["postTypeName"])) {
             $postTypeName = $_POST['postTypeName'];
         }
-        $shortcode = '[acf_filters postType="'. $postTypeName .'" fields="';
+        $shortcode = '[acf-filters postType="'. $postTypeName .'" fields="';
 
         foreach ($filterIds as $filterId) {
             $shortcode .= $filterId .',';
