@@ -102,7 +102,7 @@ class Filter_Acf_Boilerplate_Public
 
 
 
-    public static function generate_hotel_filters($attr)
+    public static function generate_filter_form_fields($attr)
     {
         $html='';
         $allFilterData = array();
@@ -182,7 +182,7 @@ class Filter_Acf_Boilerplate_Public
         return $fieldArr;
     }
     
-    public function filter_hotels_list()
+    public function filtered_content_list()
     {
         $filterData = array();
         $paged = 1;
@@ -272,7 +272,7 @@ class Filter_Acf_Boilerplate_Public
     
     
 
-    public function filter_hotels_data()
+    public function filtered_content_preview()
     {
         $allFilterData = array();
         $itemcount = 0;
@@ -356,9 +356,9 @@ class Filter_Acf_Boilerplate_Public
 }
 
 
-//add_shortcode('hotels-filters', array( 'Filter_Acf_Boilerplate_Public', 'generate_hotel_filters' ));
+//add_shortcode('hotels-filters', array( 'Filter_Acf_Boilerplate_Public', 'generate_filter_form_fields' ));
 
 
-add_shortcode('acf-filters', array( 'Filter_Acf_Boilerplate_Public', 'generate_hotel_filters' ));
+add_shortcode('acf-filters', array( 'Filter_Acf_Boilerplate_Public', 'generate_filter_form_fields' ));
 
 // echo '<pre>' . print_r($itemcount, 1) . '</pre>';

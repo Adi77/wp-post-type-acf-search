@@ -142,7 +142,7 @@
       url: '/wp-admin/admin-ajax.php',
       dataType: 'html',
       data: {
-        action: 'filter_hotels_list',
+        action: 'filtered_content_list',
         filterParams: filterParams,
         paged: paged,
       },
@@ -191,7 +191,7 @@
       url: '/wp-admin/admin-ajax.php',
       dataType: 'JSON',
       data: {
-        action: 'filter_hotels_data',
+        action: 'filtered_content_preview',
         filterParams: filterParams,
         shortcodeAttrPostType: shortcodeAttrPostType,
         shortcodeAttrAcfFieldIds: shortcodeAttrAcfFieldIds,

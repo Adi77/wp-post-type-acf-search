@@ -182,11 +182,11 @@ class Filter_Acf_Boilerplate
         $this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_scripts');
 
 
-        $this->loader->add_action('wp_ajax_filter_hotels_list', $plugin_public, 'filter_hotels_list');
-        $this->loader->add_action('wp_ajax_nopriv_filter_hotels_list', $plugin_public, 'filter_hotels_list');
+        $this->loader->add_action('wp_ajax_filtered_content_list', $plugin_public, 'filtered_content_list');
+        $this->loader->add_action('wp_ajax_nopriv_filtered_content_list', $plugin_public, 'filtered_content_list');
 
-        $this->loader->add_action('wp_ajax_filter_hotels_data', $plugin_public, 'filter_hotels_data');
-        $this->loader->add_action('wp_ajax_nopriv_filter_hotels_data', $plugin_public, 'filter_hotels_data');
+        $this->loader->add_action('wp_ajax_filtered_content_preview', $plugin_public, 'filtered_content_preview');
+        $this->loader->add_action('wp_ajax_nopriv_filtered_content_preview', $plugin_public, 'filtered_content_preview');
     }
 
     
