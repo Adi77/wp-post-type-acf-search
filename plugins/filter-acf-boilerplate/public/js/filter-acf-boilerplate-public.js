@@ -20,7 +20,7 @@
 
     filterParams = getUrlParams();
 
-    loadFilteredItemsList(filterParams, paged);
+    loadFilteredItemsList(filterParams, paged, shortcodeAttrPostType);
 
     loadFilteredItemsData(
       filterParams,
@@ -45,7 +45,8 @@
      * reset all filters
      */
     $('.reset-filter').on('click', function (event) {
-      loadFilteredItemsList();
+      filterParams = [];
+      loadFilteredItemsList(filterParams, null, shortcodeAttrPostType);
       previewFilterState();
       window.history.pushState(null, '', '?');
       $('.hotel-item-count').empty();
@@ -62,7 +63,12 @@
     $(document).on('click', '.loadmore button', function (event) {
       filterParams = $.parseJSON($(this).attr('data-filter-params'));
       paged = $(this).attr('data-paged');
-      loadFilteredItemsList(filterParams, paged, (pagination = true));
+      loadFilteredItemsList(
+        filterParams,
+        paged,
+        shortcodeAttrPostType,
+        (pagination = true)
+      );
       event.preventDefault();
     });
 
@@ -86,8 +92,7 @@
      */
     $('#hotelfiltersForm').submit(function (event) {
       filterParams = prepareFilterQuery($(this));
-
-      loadFilteredItemsList(filterParams);
+      loadFilteredItemsList(filterParams, null, shortcodeAttrPostType);
 
       /*
        * generate string for url params
@@ -136,7 +141,12 @@
     return filterParams;
   }
 
-  function loadFilteredItemsList(filterParams, paged, pagination) {
+  function loadFilteredItemsList(
+    filterParams,
+    paged,
+    shortcodeAttrPostType,
+    pagination
+  ) {
     $.ajax({
       type: 'POST',
       url: '/wp-admin/admin-ajax.php',
@@ -145,6 +155,7 @@
         action: 'filtered_content_list',
         filterParams: filterParams,
         paged: paged,
+        shortcodeAttrPostType: shortcodeAttrPostType,
       },
       beforeSend: function () {
         $('#hotelfiltersForm').find('.spinner-border').show();

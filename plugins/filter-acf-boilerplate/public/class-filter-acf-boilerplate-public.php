@@ -187,17 +187,22 @@ class Filter_Acf_Boilerplate_Public
         $filterData = array();
         $paged = 1;
         $itemcount = 0;
+        $shortcodeAttrPostType = '';
     
-        if (isset($_POST["paged"])) {
+        if (isset($_POST["paged"]) && $_POST["paged"] != null) {
             $paged = $_POST['paged'];
         }
+        if (isset($_POST["shortcodeAttrPostType"])) {
+            $shortcodeAttrPostType = $_POST['shortcodeAttrPostType'];
+        }
+        
         
         $meta_query = $this->generateMetaQuery($filterData);
 
         $count = get_option('posts_per_page', 10);
         $offset = ($paged - 1) * $count;
         $args = array(
-        'post_type'      => 'hotel',
+        'post_type'      => $shortcodeAttrPostType,
         'post_status' => 'publish',
         'posts_per_page' => $count,
         'paged' => $paged,
@@ -324,7 +329,7 @@ class Filter_Acf_Boilerplate_Public
     {
         $options = array();
     
-        if (isset($_POST["filterParams"])) {
+        if (isset($_POST["filterParams"]) && $_POST["filterParams"] != null) {
             $filterData = $_POST['filterParams'];
         }
     
