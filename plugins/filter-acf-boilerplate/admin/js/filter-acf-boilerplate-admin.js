@@ -41,7 +41,10 @@
     let filterIds = [];
     let postTypeName = '';
     $('#acfFilters').submit(function (event) {
-      //$(document).on('submit', '#acfFilters', function(event){
+      if ($(this).find('input:checked').length == 0) {
+        alert('Bitte wählen Sie mindestens ein Filter aus.');
+        return false;
+      }
 
       $(this)
         .find('input:checked')

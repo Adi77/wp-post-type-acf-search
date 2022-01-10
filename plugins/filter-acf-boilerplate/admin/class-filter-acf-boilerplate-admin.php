@@ -156,7 +156,7 @@ class Filter_Acf_Boilerplate_Admin
 
         <?php
         $postTypeNames = $this->load_acf_groups_by_position();
-        echo '<select name="post-type-selector" id="post-type-selector">';
+        echo '<select name="post-type-selector" id="post-type-selector" required>';
         echo '<option disabled selected value>ACF Ansicht wählen</option>';
         foreach ($postTypeNames as $ptn) {
             echo  '<option value='.$ptn.'>'. ucfirst($ptn) .'</option>';
