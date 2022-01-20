@@ -39,12 +39,12 @@
             wp_kses(
         /* translators: %s: Name of current post. Only visible to screen readers */
         __('Continue reading<span class="screen-reader-text"> "%s"</span>', 'starter_theme'),
-          array(
+                array(
           'span' => array(
             'class' => array(),
           ),
         )
-      ),
+            ),
             get_the_title()
         ));
 

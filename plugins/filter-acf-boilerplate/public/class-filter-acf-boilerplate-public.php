@@ -137,7 +137,15 @@ class Filter_Acf_Boilerplate_Public
             foreach ($allFilterData as $fieldName => $fieldRows) {
                 $html .='<div class="form-group mb-2 col-md-12" id="'. $fieldName .'">';
                 foreach ($fieldRows as $key => $value) {
-                    $html .= '<label class="form-check-label" for="'. $key .'"> '. $value .' </label>';
+                    foreach ($value as $key2 => $value2) {
+                        if ($key2 == 'filterLabel') {
+                            $html .= '<label class="form-check-label" for="'. $key .'"> '. $value2;
+                        }
+                        if ($key2 == 'filterCount') {
+                            $html .= '<span class="count">'. $value2 .'</span></label>';
+                        }
+                    }
+                    
                     $typeSaveKey = str_replace("%", "", $key);
                     $html .= '<input class="form-check-input hotel-list_filter" type="checkbox" value="'. $key .'" id="'. $typeSaveKey .'" name="hotels-filter-checkbox">';
                 }
@@ -163,20 +171,28 @@ class Filter_Acf_Boilerplate_Public
         $acfFieldIdsArr = explode(",", $acfFieldIds);
         
         $fieldArr = array();
+        $count_values = array();
 
         while ($query->have_posts()) {
             $query->the_post() ;
       
             foreach ($acfFieldIdsArr as $acfFieldId) {
                 if (gettype(get_field($acfFieldId)) == 'string') {
-                    $fieldArr[$acfFieldId][rawurlencode(get_field($acfFieldId))] = get_field($acfFieldId);
+                    // count items with same filter value
+                    @$count_values[get_field($acfFieldId)]++;
+                    $fieldArr[$acfFieldId][rawurlencode(get_field($acfFieldId))]['filterValue'] = rawurlencode(get_field($acfFieldId));
+                    $fieldArr[$acfFieldId][rawurlencode(get_field($acfFieldId))]['filterLabel'] = get_field($acfFieldId);
+                    $fieldArr[$acfFieldId][rawurlencode(get_field($acfFieldId))]['filterCount'] = $count_values[get_field($acfFieldId)];
                 } else {
                     foreach (get_field($acfFieldId) as $acfFieldIdItem) {
-                        $fieldArr[$acfFieldId][$acfFieldIdItem['value']] = $acfFieldIdItem['label'];
+                        // count items with same filter value
+                        @$count_values[$acfFieldIdItem['value']]++;
+                        $fieldArr[$acfFieldId][$acfFieldIdItem['value']]['filterValue'] = $acfFieldIdItem['value'];
+                        $fieldArr[$acfFieldId][$acfFieldIdItem['value']]['filterLabel'] = $acfFieldIdItem['label'];
+                        $fieldArr[$acfFieldId][$acfFieldIdItem['value']]['filterCount'] = $count_values[$acfFieldIdItem['value']];
                     }
                 }
             }
-            $allFilterData[$acfFieldId] = $fieldArr;
         }
 
         return $fieldArr;

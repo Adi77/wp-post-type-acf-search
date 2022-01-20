@@ -239,15 +239,28 @@
       $.each(
         $('input[name="hotels-filter-checkbox"]'),
         function (index, value) {
+          let currentEl = this.value;
+
           $('input[value="' + this.value + '"]').attr('disabled', true);
+
+          $('label[for="' + currentEl + '"]')
+            .find('span')
+            .html(0);
+
+          $.each(res, function (key, value2) {
+            $.each(Object.values(value2), function (key2, value3) {
+              if (currentEl == value3['filterValue']) {
+                $('label[for="' + value3['filterValue'] + '"]')
+                  .find('span')
+                  .html(value3['filterCount']);
+                $('input[value="' + value3['filterValue'] + '"]').removeAttr(
+                  'disabled'
+                );
+              }
+            });
+          });
         }
       );
-      $.each(Object.values(res), function (key, value2) {
-        let arr = Object.keys(value2);
-        $.each(arr, function (key, value3) {
-          $('input[value="' + value3 + '"]').removeAttr('disabled');
-        });
-      });
     } else {
       $.each(
         $('input[name="hotels-filter-checkbox"]'),

@@ -42,14 +42,6 @@ class Filter_Acf_Boilerplate_Admin
     private $version;
 
 
-    /**
-         * The db .
-         *
-         * @since    1.0.0
-         * @access   private
-         * @var      array    $wpdb    The current version of this plugin.
-         */
-    private $wpdb;
 
     /**
      * Initialize the class and set its properties.
