@@ -42,11 +42,33 @@
     });
 
     /*
+     * Get Filter Results Count and disable options
+     */
+    $('.hotel-list_filter').on('click', function (event) {
+      filterParams = prepareFilterQuery($(this).parent().parent());
+
+      loadFilteredItemsData(
+        filterParams,
+        shortcodeAttrPostType,
+        shortcodeAttrAcfFieldIds
+      );
+
+      //loadFilteredItemsList(filterParams);
+    });
+
+    /*
      * reset all filters
      */
     $('.reset-filter').on('click', function (event) {
       filterParams = [];
       loadFilteredItemsList(filterParams, null, shortcodeAttrPostType);
+
+      loadFilteredItemsData(
+        filterParams,
+        shortcodeAttrPostType,
+        shortcodeAttrAcfFieldIds
+      );
+
       previewFilterState();
 
       window.history.pushState(null, '', '?');
@@ -71,21 +93,6 @@
         (pagination = true)
       );
       event.preventDefault();
-    });
-
-    /*
-     * Get Filter Results Count and disable options
-     */
-    $('.hotel-list_filter').on('click', function (event) {
-      filterParams = prepareFilterQuery($(this).parent().parent());
-
-      loadFilteredItemsData(
-        filterParams,
-        shortcodeAttrPostType,
-        shortcodeAttrAcfFieldIds
-      );
-
-      //loadFilteredItemsList(filterParams);
     });
 
     /*
