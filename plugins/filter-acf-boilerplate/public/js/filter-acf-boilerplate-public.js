@@ -48,6 +48,7 @@
       filterParams = [];
       loadFilteredItemsList(filterParams, null, shortcodeAttrPostType);
       previewFilterState();
+
       window.history.pushState(null, '', '?');
       $('.hotel-item-count').empty();
       $('input[name="hotels-filter-checkbox"]').each(function () {
@@ -153,6 +154,7 @@
       dataType: 'html',
       data: {
         action: 'filtered_content_list',
+
         filterParams: filterParams,
         paged: paged,
         shortcodeAttrPostType: shortcodeAttrPostType,

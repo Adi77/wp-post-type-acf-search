@@ -128,11 +128,14 @@ class Filter_Acf_Boilerplate_Public
         if ($query->have_posts()) {
             $allFilterData = Filter_Acf_Boilerplate_Public::collect_filter_data($query, $scArgs['fields']);
 
+
             $html .= '<div class="container">';
             $html .= '<div class="row">';
             $html .= '<form id="hotelfiltersForm" class="form-inline">';
+
             $html .= '<input type="hidden" id="postType" name="postType" value="'. $scArgs['posttype'] .'">';
             $html .= '<input type="hidden" id="acfFieldIds" name="acfFieldIds" value="'. $scArgs['fields'] .'">';
+
 
             foreach ($allFilterData as $fieldName => $fieldRows) {
                 $html .='<div class="form-group mb-2 col-md-12" id="'. $fieldName .'">';
@@ -166,6 +169,7 @@ class Filter_Acf_Boilerplate_Public
     //
     // collect filter values of all current items with no duplicates
     //
+
     public static function collect_filter_data($query, $acfFieldIds)
     {
         $acfFieldIdsArr = explode(",", $acfFieldIds);
@@ -325,6 +329,7 @@ class Filter_Acf_Boilerplate_Public
         // collect filter data from preview selected posts
         //
 
+
         if (isset($_POST["shortcodeAttrAcfFieldIds"])) {
             $shortcodeAttrAcfFieldIds = $_POST['shortcodeAttrAcfFieldIds'];
         }
@@ -332,6 +337,7 @@ class Filter_Acf_Boilerplate_Public
         $allFilterData = Filter_Acf_Boilerplate_Public::collect_filter_data($ajaxposts, $shortcodeAttrAcfFieldIds);
 
         $allFilterData['itemcount'] = $itemcount;
+
 
         echo json_encode($allFilterData);
 
