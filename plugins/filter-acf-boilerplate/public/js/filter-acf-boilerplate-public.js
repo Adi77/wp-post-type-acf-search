@@ -22,7 +22,7 @@
 
     loadFilteredItemsList(filterParams, paged, shortcodeAttrPostType);
 
-    loadFilteredItemsData(
+    loadFilteredContentPreview(
       filterParams,
       shortcodeAttrPostType,
       shortcodeAttrAcfFieldIds
@@ -47,7 +47,7 @@
     $('.hotel-list_filter').on('click', function (event) {
       filterParams = prepareFilterQuery($(this).parent().parent());
 
-      loadFilteredItemsData(
+      loadFilteredContentPreview(
         filterParams,
         shortcodeAttrPostType,
         shortcodeAttrAcfFieldIds
@@ -63,7 +63,7 @@
       filterParams = [];
       loadFilteredItemsList(filterParams, null, shortcodeAttrPostType);
 
-      loadFilteredItemsData(
+      loadFilteredContentPreview(
         filterParams,
         shortcodeAttrPostType,
         shortcodeAttrAcfFieldIds
@@ -201,7 +201,7 @@
     return false;
   }
 
-  function loadFilteredItemsData(
+  function loadFilteredContentPreview(
     filterParams,
     shortcodeAttrPostType,
     shortcodeAttrAcfFieldIds

@@ -167,7 +167,7 @@ class Filter_Acf_Boilerplate_Public
     }
     
     //
-    // collect filter values of all current items with no duplicates
+    // collect filter values of all current items with no duplicates and count them
     //
 
     public static function collect_filter_data($query, $acfFieldIds)
