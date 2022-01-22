@@ -185,8 +185,8 @@ class Filter_Acf_Boilerplate
         $this->loader->add_action('wp_ajax_filtered_content_list', $plugin_public, 'filtered_content_list');
         $this->loader->add_action('wp_ajax_nopriv_filtered_content_list', $plugin_public, 'filtered_content_list');
 
-        $this->loader->add_action('wp_ajax_filtered_content_preview', $plugin_public, 'filtered_content_preview');
-        $this->loader->add_action('wp_ajax_nopriv_filtered_content_preview', $plugin_public, 'filtered_content_preview');
+        $this->loader->add_action('wp_ajax_filtered_content_json', $plugin_public, 'filtered_content_json');
+        $this->loader->add_action('wp_ajax_nopriv_filtered_content_json', $plugin_public, 'filtered_content_json');
     }
 
     

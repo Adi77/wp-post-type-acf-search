@@ -18,36 +18,41 @@
         .find('#acfFieldIds')
         .attr('value');
 
+    /*
+     * Get url Parameters
+     */
     filterParams = getUrlParams();
+    /*
+     * Check if url Parameters are set
+     */
+    if (!$.isEmptyObject(filterParams)) {
+      loadFilteredContentItemsJson(
+        filterParams,
+        shortcodeAttrPostType,
+        shortcodeAttrAcfFieldIds
+      );
+      /*
+       * Set active filter from url params
+       */
+      $.each(filterParams, function (key, value) {
+        filterTypeOptions = value.split(',');
+
+        $.each(filterTypeOptions, function (optionsKey, optionsValue) {
+          $('#' + key + '')
+            .find($('#' + optionsValue.replace(/%/g, '') + ''))
+            .attr('checked', true);
+        });
+      });
+    }
 
     loadFilteredItemsList(filterParams, paged, shortcodeAttrPostType);
-
-    loadFilteredContentPreview(
-      filterParams,
-      shortcodeAttrPostType,
-      shortcodeAttrAcfFieldIds
-    );
-
-    /*
-     * Set active filter from url params
-     */
-    $.each(filterParams, function (key, value) {
-      filterTypeOptions = value.split(',');
-
-      $.each(filterTypeOptions, function (optionsKey, optionsValue) {
-        $('#' + key + '')
-          .find($('#' + optionsValue.replace(/%/g, '') + ''))
-          .attr('checked', true);
-      });
-    });
 
     /*
      * Get Filter Results Count and disable options
      */
     $('.hotel-list_filter').on('click', function (event) {
       filterParams = prepareFilterQuery($(this).parent().parent());
-
-      loadFilteredContentPreview(
+      loadFilteredContentItemsJson(
         filterParams,
         shortcodeAttrPostType,
         shortcodeAttrAcfFieldIds
@@ -63,7 +68,7 @@
       filterParams = [];
       loadFilteredItemsList(filterParams, null, shortcodeAttrPostType);
 
-      loadFilteredContentPreview(
+      loadFilteredContentItemsJson(
         filterParams,
         shortcodeAttrPostType,
         shortcodeAttrAcfFieldIds
@@ -161,7 +166,6 @@
       dataType: 'html',
       data: {
         action: 'filtered_content_list',
-
         filterParams: filterParams,
         paged: paged,
         shortcodeAttrPostType: shortcodeAttrPostType,
@@ -201,7 +205,7 @@
     return false;
   }
 
-  function loadFilteredContentPreview(
+  function loadFilteredContentItemsJson(
     filterParams,
     shortcodeAttrPostType,
     shortcodeAttrAcfFieldIds
@@ -211,7 +215,7 @@
       url: '/wp-admin/admin-ajax.php',
       dataType: 'JSON',
       data: {
-        action: 'filtered_content_preview',
+        action: 'filtered_content_json',
         filterParams: filterParams,
         shortcodeAttrPostType: shortcodeAttrPostType,
         shortcodeAttrAcfFieldIds: shortcodeAttrAcfFieldIds,
