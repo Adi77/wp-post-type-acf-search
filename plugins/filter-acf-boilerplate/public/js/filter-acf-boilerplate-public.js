@@ -26,11 +26,6 @@
      * Check if url Parameters are set
      */
     if (!$.isEmptyObject(filterParams)) {
-      loadFilteredContentItemsJson(
-        filterParams,
-        shortcodeAttrPostType,
-        shortcodeAttrAcfFieldIds
-      );
       /*
        * Set active filter from url params
        */

@@ -80,13 +80,43 @@ class Filter_Acf_Boilerplate_Public
     {
         $html='';
         $allFilterData = array();
+        $urlParams = array();
         $typeSaveKey = '';
 
         $scArgs = shortcode_atts(array(
             'posttype' => '',
             'fields' => ''
         ), $attr);
+
+
+        /* if url has params get filtered selection */
+        if (!empty($_GET)) {
+            $hasUrlParams = true;
+            foreach ($_GET as $key => $value) {
+                $urlParams[$key] = $value;
+            }
+            $meta_query = Filter_Acf_Boilerplate_Public::generateMetaQuery($urlParams);
+
+            $args2 = array(
+                'post_type'      => $scArgs['posttype'],
+                'post_status' => 'publish',
+                'posts_per_page' => -1,
+                'meta_query'	=> $meta_query,
+                //'no_found_rows' => true, // counts posts, remove if you need pagination
+                'update_post_term_cache' => false, // queries terms, remove if you need categories or tags
+                'update_post_meta_cache' => false, // queries post meta, remove if you need post meta
+                );
     
+            $query2 = new WP_Query($args2);
+    
+            if ($query2->have_posts()) {
+                $selectedFilterDataLike = Filter_Acf_Boilerplate_Public::collect_filter_data($query2, $scArgs['fields']);
+            }
+        }
+        
+     
+
+       
         $args = array(
                       'post_type'      => $scArgs['posttype'],
                       'post_status' => 'publish',
@@ -99,7 +129,13 @@ class Filter_Acf_Boilerplate_Public
         $query = new WP_Query($args);
 
         if ($query->have_posts()) {
-            $allFilterData = Filter_Acf_Boilerplate_Public::collect_filter_data($query, $scArgs['fields']);
+            if (isset($hasUrlParams)) {
+                $allFilterDataReplace = Filter_Acf_Boilerplate_Public::collect_filter_data($query, $scArgs['fields'], true);
+                $allFilterData = array_replace_recursive($allFilterDataReplace, $selectedFilterDataLike);
+            } else {
+                $allFilterData = Filter_Acf_Boilerplate_Public::collect_filter_data($query, $scArgs['fields']);
+            }
+            
 
 
             $html .= '<div class="container">';
@@ -118,12 +154,17 @@ class Filter_Acf_Boilerplate_Public
                             $html .= '<label class="form-check-label" for="'. $key .'"> '. $value2;
                         }
                         if ($key2 == 'filterCount') {
+                            if ($value2 == 0) {
+                                $disableFormEl = 'disabled="disabled"';
+                            } else {
+                                $disableFormEl = '';
+                            }
                             $html .= '<span class="count">'. $value2 .'</span></label>';
                         }
                     }
                     
                     $typeSaveKey = str_replace("%", "", $key);
-                    $html .= '<input class="form-check-input hotel-list_filter" type="checkbox" value="'. $key .'" id="'. $typeSaveKey .'" name="hotels-filter-checkbox">';
+                    $html .= '<input '. $disableFormEl.' class="form-check-input hotel-list_filter" type="checkbox" value="'. $key .'" id="'. $typeSaveKey .'" name="hotels-filter-checkbox">';
                 }
                 $html .= '</div>';
             }
@@ -143,7 +184,7 @@ class Filter_Acf_Boilerplate_Public
     // collect filter values of all current items with no duplicates and count them
     //
 
-    public static function collect_filter_data($query, $acfFieldIds)
+    public static function collect_filter_data($query, $acfFieldIds, $zerocount = false)
     {
         $acfFieldIdsArr = explode(",", $acfFieldIds);
         
@@ -167,7 +208,11 @@ class Filter_Acf_Boilerplate_Public
                     $acfFieldValEnc = rawurlencode($acfFieldVal);
                     $fieldArr[$acfFieldId][$acfFieldValEnc]['filterValue'] = $acfFieldValEnc;
                     $fieldArr[$acfFieldId][$acfFieldValEnc]['filterLabel'] = $acfFieldVal;
-                    $fieldArr[$acfFieldId][$acfFieldValEnc]['filterCount'] = $count_values[$acfFieldVal];
+                    if ($zerocount) {
+                        $fieldArr[$acfFieldId][$acfFieldValEnc]['filterCount'] = 0;
+                    } else {
+                        $fieldArr[$acfFieldId][$acfFieldValEnc]['filterCount'] = $count_values[$acfFieldVal];
+                    }
                 } else {
                     foreach ($acfFieldVal as $acfFieldIdItem) {
                         // count items with same filter value
@@ -179,7 +224,11 @@ class Filter_Acf_Boilerplate_Public
                         $acfFieldValEnc = rawurlencode($acfFieldIdItem['value']);
                         $fieldArr[$acfFieldId][$acfFieldValEnc]['filterValue'] = $acfFieldValEnc;
                         $fieldArr[$acfFieldId][$acfFieldValEnc]['filterLabel'] = $acfFieldIdItem['label'];
-                        $fieldArr[$acfFieldId][$acfFieldValEnc]['filterCount'] = $count_values[$acfFieldIdItem['value']];
+                        if ($zerocount) {
+                            $fieldArr[$acfFieldId][$acfFieldValEnc]['filterCount'] = 0;
+                        } else {
+                            $fieldArr[$acfFieldId][$acfFieldValEnc]['filterCount'] = $count_values[$acfFieldIdItem['value']];
+                        }
                     }
                 }
             }
@@ -333,7 +382,7 @@ class Filter_Acf_Boilerplate_Public
     
     
     
-    public function generateMetaQuery($filterData = array())
+    public static function generateMetaQuery($filterData = array(), $compareType = 'LIKE')
     {
         $options = array();
     
@@ -356,9 +405,9 @@ class Filter_Acf_Boilerplate_Public
         foreach ($options as $key => $value) {
             $meta_query[]['relation'] = 'OR';
             $optionsIterator = 0;
-            foreach ($value as $key2 => $value2) {
+            foreach ($value as $value2) {
                 if ($optionsIterator < count($value)) {
-                    $meta_query[$filtertypeIterator][] = array( 'key'=> $key, 'value' => rawurldecode($value2), 'compare' => 'LIKE'  );
+                    $meta_query[$filtertypeIterator][] = array( 'key'=> $key, 'value' => rawurldecode($value2), 'compare' => $compareType  );
                 }
                 $optionsIterator++;
             }
@@ -367,9 +416,6 @@ class Filter_Acf_Boilerplate_Public
         return $meta_query;
     }
 }
-
-
-//add_shortcode('hotels-filters', array( 'Filter_Acf_Boilerplate_Public', 'generate_filter_form_fields' ));
 
 
 add_shortcode('acf-filters', array( 'Filter_Acf_Boilerplate_Public', 'generate_filter_form_fields' ));
